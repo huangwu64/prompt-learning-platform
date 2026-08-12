@@ -4,6 +4,7 @@ import com.aiplatform.common.BizException;
 import com.aiplatform.config.AiProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
@@ -29,19 +30,22 @@ public class AiGateway {
     private final ObjectMapper objectMapper;
     private final CircuitBreaker circuitBreaker;
     private final Retry retry;
+    private final MeterRegistry meterRegistry;
 
     public AiGateway(AiHttpClient httpClient,
                      AiProperties props,
                      RedisTemplate<String, Object> redisTemplate,
                      ObjectMapper objectMapper,
                      CircuitBreakerRegistry circuitBreakerRegistry,
-                     RetryRegistry retryRegistry) {
+                     RetryRegistry retryRegistry,
+                     MeterRegistry meterRegistry) {
         this.httpClient = httpClient;
         this.props = props;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
         this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("deepseek");
         this.retry = retryRegistry.retry("deepseek");
+        this.meterRegistry = meterRegistry;
     }
 
     /**
@@ -58,9 +62,12 @@ public class AiGateway {
                                      Double temperature) {
         checkQuota(userId);
         try {
-            return retry.executeSupplier(() ->
+            AiResponse resp = retry.executeSupplier(() ->
                     circuitBreaker.executeSupplier(() -> httpClient.chatDetail(messages, false, maxTokens, temperature)));
+            meterRegistry.counter("ai.calls", "provider", "deepseek", "result", "success").increment();
+            return resp;
         } catch (Exception e) {
+            meterRegistry.counter("ai.calls", "provider", "deepseek", "result", "failure").increment();
             log.error("AI 调用失败: {}", e.getMessage());
             throw new BizException(500, "AI 服务暂时不可用，请稍后重试");
         }
