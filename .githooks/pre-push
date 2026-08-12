@@ -1,0 +1,15 @@
+#!/bin/sh
+# pre-push hook：禁止直接推送 master（稳定分支）
+# 标准输入：<local ref> <local sha> <remote ref> <remote sha>
+
+while read local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/master)
+      echo "✗ 禁止直接 push 到 master（稳定分支只读）" >&2
+      echo "  请先合并到 develop，正式发布时再处理 master" >&2
+      exit 1 ;;
+    *) ;;
+  esac
+done
+
+exit 0

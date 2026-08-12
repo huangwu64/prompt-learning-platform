@@ -1,0 +1,23 @@
+#!/bin/sh
+# pre-commit hook：
+#  1) 禁止在 master（稳定分支）直接提交
+#  2) 禁止误提交构建产物 / 密钥文件
+
+# 1. 分支检查
+BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+if [ "$BRANCH" = "master" ]; then
+  echo "✗ 禁止直接在 master 分支提交（稳定分支只读）" >&2
+  echo "  请从 develop 切功能分支：git checkout -b feature/<功能>" >&2
+  exit 1
+fi
+
+# 2. 构建产物 / 密钥检查
+BAD=$(git diff --cached --name-only | grep -E '(^|/)(target|node_modules|dist|build)/|\.env(\.local)?$|\.jar$|\.key$|\.pem$|\.log$' || true)
+if [ -n "$BAD" ]; then
+  echo "✗ 检测到疑似构建产物/密钥文件被暂存，禁止提交：" >&2
+  echo "$BAD" >&2
+  echo "  请执行 git reset <文件> 后移除，再重新 git add" >&2
+  exit 1
+fi
+
+exit 0
