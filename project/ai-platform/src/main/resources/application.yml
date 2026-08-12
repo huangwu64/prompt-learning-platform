@@ -1,0 +1,83 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ai-platform
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:prompt_learning_platform}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:han1314520}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3s
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    banner: false
+    db-config:
+      id-type: assign_uuid
+
+# JWT
+jwt:
+  secret: ${JWT_SECRET:aiplatform-dev-secret-key-please-change-in-production-0123456789}
+  expire-hours: ${JWT_EXPIRE_HOURS:168}
+
+# AI 网关
+ai:
+  deepseek:
+    base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+    api-key: ${DEEPSEEK_API_KEY:}
+    model: ${DEEPSEEK_MODEL:deepseek-chat}
+    timeout-seconds: 30
+    max-tokens: 2048
+  daily-limit: ${AI_DAILY_LIMIT:50}
+
+# 限流
+ratelimit:
+  ip-limit: ${IP_RATE_LIMIT:60}
+  ip-window-seconds: 60
+
+# API 文档
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+# 监控
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+# AI 熔断/重试
+resilience4j:
+  circuitbreaker:
+    instances:
+      deepseek:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+  retry:
+    instances:
+      deepseek:
+        max-attempts: 2
+        wait-duration: 500ms
+
+logging:
+  level:
+    com.aiplatform: info

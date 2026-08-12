@@ -1,0 +1,70 @@
+# 前后端分离部署：前端 Nginx + 后端 Spring Boot + MySQL + Redis
+# 使用前：export JWT_SECRET=... DEEPSEEK_API_KEY=...（必填）
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: aiplatform-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-han1314520}
+      MYSQL_DATABASE: prompt_learning_platform
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: aiplatform-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
+  backend:
+    build: .
+    container_name: aiplatform-backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_NAME: prompt_learning_platform
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD:-han1314520}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      JWT_SECRET: ${JWT_SECRET:?请设置 JWT_SECRET}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:?请设置 DEEPSEEK_API_KEY}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+    expose:
+      - "8080"
+
+  frontend:
+    image: nginx:alpine
+    container_name: aiplatform-frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      # 前端构建产物（React build）挂载到：
+      # - ./frontend-dist:/usr/share/nginx/html
+    # 说明：前端 React 构建后，将 dist 目录挂载到 nginx html 即可
+
+volumes:
+  mysql-data:
+  redis-data:
