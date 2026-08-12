@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,7 @@ import java.util.Map;
 /**
  * 苏格拉底对话：追问状态机 + AI 编排 + 学习进度联动
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -91,6 +93,7 @@ public class ChatService {
 
         conv.setCurrentRound(1);
         conversationMapper.updateById(conv);
+        log.info("创建对话 convId={} userId={} topicId={}", conv.getId(), userId, conv.getTopicId());
 
         ChatCreateVO vo = new ChatCreateVO();
         vo.setConversation(ConversationVO.from(conv, objectMapper));
@@ -230,6 +233,8 @@ public class ChatService {
         long convCount = conversationMapper.selectCount(new LambdaQueryWrapper<Conversation>()
                 .eq(Conversation::getUserId, userId));
         badgeService.checkAndUnlock(userId, "conversation_count", (int) convCount);
+
+        log.info("对话评分 convId={} userId={} rating={}", conversationId, userId, rating);
 
         RatingVO vo = new RatingVO();
         vo.setConversationId(conversationId);

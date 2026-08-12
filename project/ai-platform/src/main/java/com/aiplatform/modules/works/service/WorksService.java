@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.Set;
 /**
  * 作品工厂：模板编排 + AI 生成 + CRUD
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WorksService {
@@ -44,10 +46,13 @@ public class WorksService {
     public WorkVO create(String userId, CreateWorkReq req) {
         validateFormData(req.getWorkType(), req.getFormData());
 
+        long start = System.currentTimeMillis();
         String content = aiGateway.chatText(userId,
                 List.of(ChatMessage.system(WorkPrompts.system(req.getWorkType())),
                         ChatMessage.user(WorkPrompts.buildRequest(req.getFormData()))),
                 2048);
+        log.info("作品生成 workType={} title={} cost={}ms",
+                req.getWorkType(), req.getTitle(), System.currentTimeMillis() - start);
 
         Work work = new Work();
         work.setUserId(userId);

@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -11,32 +12,30 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.UUID;
 
 /**
- * 请求追踪与安全响应头：
- * - 生成 traceId 写入 MDC（日志全链路关联）并通过响应头 X-Trace-Id 返回，便于定位问题
- * - 附加基础安全响应头（nosniff / 防点击劫持 / XSS）
+ * 请求日志过滤器：记录每个请求的 method/path/status/耗时/traceId
+ * 在 TraceIdFilter 之后执行（@Order 更大），确保 MDC 中已有 traceId
  */
+@Slf4j
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public class TraceIdFilter extends OncePerRequestFilter {
-
-    static final String TRACE_ID = "traceId";
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
+public class RequestLogFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String traceId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-        MDC.put(TRACE_ID, traceId);
-        response.setHeader("X-Trace-Id", traceId);
-        response.setHeader("X-Content-Type-Options", "nosniff");
-        response.setHeader("X-Frame-Options", "DENY");
-        response.setHeader("X-XSS-Protection", "1; mode=block");
+        long start = System.currentTimeMillis();
         try {
             filterChain.doFilter(request, response);
         } finally {
-            MDC.remove(TRACE_ID);
+            long cost = System.currentTimeMillis() - start;
+            log.info("请求 method={} path={} status={} cost={}ms traceId={}",
+                    request.getMethod(),
+                    request.getRequestURI(),
+                    response.getStatus(),
+                    cost,
+                    MDC.get(TraceIdFilter.TRACE_ID));
         }
     }
 }

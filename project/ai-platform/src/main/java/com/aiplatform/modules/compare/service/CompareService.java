@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.List;
 /**
  * 智能对比：AI 差异分析 + 历史
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CompareService {
@@ -45,6 +47,7 @@ public class CompareService {
         comparison.setComparedPrompt(req.getComparedPrompt());
         comparison.setAnalysis(toJson(ai));
         comparisonMapper.insert(comparison);
+        log.info("创建智能对比 cmpId={} userId={}", comparison.getId(), userId);
         return CompareVO.from(comparison, objectMapper);
     }
 

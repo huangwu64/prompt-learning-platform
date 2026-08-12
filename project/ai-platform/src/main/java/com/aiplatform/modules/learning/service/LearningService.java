@@ -15,6 +15,7 @@ import com.aiplatform.modules.learning.vo.UpdateProgressVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
  * 学习地图：知识点状态机 + 阶段解锁 + 进度查询
  * updateProgress 为内部方法，由 chat 评分联动调用
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LearningService {
@@ -174,6 +176,7 @@ public class LearningService {
         if (stageUnlocked) {
             badgeService.checkAndUnlock(userId, "stage_complete", 1);
         }
+        log.info("学习进度更新 userId={} topicId={} status={}", userId, topicId, status);
 
         UpdateProgressVO vo = new UpdateProgressVO();
         vo.setStatus(status);

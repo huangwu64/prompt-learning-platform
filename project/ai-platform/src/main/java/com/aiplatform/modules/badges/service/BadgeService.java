@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
  * 徽章：解锁引擎 + 定义列表
  * checkAndUnlock 为内部方法，由 chat/works/learning 埋点调用
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BadgeService {
@@ -78,6 +80,7 @@ public class BadgeService {
                 ub.setUserId(userId);
                 ub.setBadgeId(b.getId());
                 userBadgeMapper.insert(ub);
+                log.info("解锁徽章 userId={} badgeId={} type={}", userId, b.getId(), type);
             }
         }
     }

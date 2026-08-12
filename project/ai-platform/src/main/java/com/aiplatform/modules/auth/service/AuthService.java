@@ -10,6 +10,7 @@ import com.aiplatform.modules.auth.vo.LoginVO;
 import com.aiplatform.modules.auth.vo.UserVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.time.Duration;
 /**
  * 认证业务：注册、登录、JWT 签发、失败锁定
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -49,6 +51,7 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
         user.setStreakDays(0);
         userMapper.insert(user);
+        log.info("用户注册成功 userId={} email={}", user.getId(), user.getEmail());
         return buildLoginVO(user);
     }
 
@@ -70,6 +73,7 @@ public class AuthService {
         }
 
         redisTemplate.delete(lockKey);
+        log.info("用户登录成功 userId={}", user.getId());
         return buildLoginVO(user);
     }
 

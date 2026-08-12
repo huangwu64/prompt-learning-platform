@@ -61,14 +61,16 @@ public class AiGateway {
     public AiResponse chatTextDetail(String userId, List<ChatMessage> messages, Integer maxTokens,
                                      Double temperature) {
         checkQuota(userId);
+        long start = System.currentTimeMillis();
         try {
             AiResponse resp = retry.executeSupplier(() ->
                     circuitBreaker.executeSupplier(() -> httpClient.chatDetail(messages, false, maxTokens, temperature)));
             meterRegistry.counter("ai.calls", "provider", "deepseek", "result", "success").increment();
+            log.info("AI 调用成功 provider=deepseek cost={}ms", System.currentTimeMillis() - start);
             return resp;
         } catch (Exception e) {
             meterRegistry.counter("ai.calls", "provider", "deepseek", "result", "failure").increment();
-            log.error("AI 调用失败: {}", e.getMessage());
+            log.error("AI 调用失败 provider=deepseek cost={}ms: {}", System.currentTimeMillis() - start, e.getMessage());
             throw new BizException(500, "AI 服务暂时不可用，请稍后重试");
         }
     }

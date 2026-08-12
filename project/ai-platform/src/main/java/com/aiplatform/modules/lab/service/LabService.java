@@ -8,6 +8,7 @@ import com.aiplatform.config.AiProperties;
 import com.aiplatform.modules.lab.dto.LabTestReq;
 import com.aiplatform.modules.lab.vo.LabTestVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 /**
  * 提示词实验室：单提示词测试
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LabService {
@@ -30,6 +32,7 @@ public class LabService {
                 req.getMaxTokens(),
                 req.getTemperature());
         double duration = (System.currentTimeMillis() - start) / 1000.0;
+        log.info("实验室测试 promptLen={} cost={}s", req.getPrompt().length(), duration);
 
         return new LabTestVO(
                 resp.content(),
