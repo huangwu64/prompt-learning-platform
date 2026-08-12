@@ -1,6 +1,7 @@
 package com.aiplatform.modules.learning.service;
 
 import com.aiplatform.common.BizException;
+import com.aiplatform.modules.badges.service.BadgeService;
 import com.aiplatform.modules.learning.config.LearningConfig;
 import com.aiplatform.modules.learning.entity.KnowledgePoint;
 import com.aiplatform.modules.learning.entity.UserKnowledgeProgress;
@@ -37,6 +38,7 @@ public class LearningService {
     private final KnowledgePointMapper kpMapper;
     private final UserKnowledgeProgressMapper progressMapper;
     private final LearningStatsMapper statsMapper;
+    private final BadgeService badgeService;
 
     /** 启动时初始化知识点配置表（空表才插入） */
     @PostConstruct
@@ -166,6 +168,11 @@ public class LearningService {
         if (STATUS_MASTERED.equals(status)
                 && (prev == null || !STATUS_MASTERED.equals(prev.getStatus()))) {
             stageUnlocked = maybeUnlockNextStage(userId, kp.getStage());
+        }
+
+        // 徽章触发：阶段解锁（入门完成等）
+        if (stageUnlocked) {
+            badgeService.checkAndUnlock(userId, "stage_complete", 1);
         }
 
         UpdateProgressVO vo = new UpdateProgressVO();

@@ -3,6 +3,7 @@ package com.aiplatform.modules.works.service;
 import com.aiplatform.ai.AiGateway;
 import com.aiplatform.ai.ChatMessage;
 import com.aiplatform.common.BizException;
+import com.aiplatform.modules.badges.service.BadgeService;
 import com.aiplatform.common.PageQuery;
 import com.aiplatform.common.PageResult;
 import com.aiplatform.common.util.SecurityUtil;
@@ -37,6 +38,7 @@ public class WorksService {
 
     private final WorkMapper workMapper;
     private final AiGateway aiGateway;
+    private final BadgeService badgeService;
     private final ObjectMapper objectMapper;
 
     public WorkVO create(String userId, CreateWorkReq req) {
@@ -54,6 +56,12 @@ public class WorksService {
         work.setContent(content);
         work.setFormData(toJson(req.getFormData()));
         workMapper.insert(work);
+
+        // 徽章触发：累计作品数
+        long workCount = workMapper.selectCount(new LambdaQueryWrapper<Work>()
+                .eq(Work::getUserId, userId));
+        badgeService.checkAndUnlock(userId, "works_count", (int) workCount);
+
         return WorkVO.from(work, objectMapper);
     }
 

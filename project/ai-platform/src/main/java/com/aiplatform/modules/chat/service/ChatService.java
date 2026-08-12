@@ -20,6 +20,7 @@ import com.aiplatform.modules.chat.vo.CompleteVO;
 import com.aiplatform.modules.chat.vo.ConversationVO;
 import com.aiplatform.modules.chat.vo.MessageVO;
 import com.aiplatform.modules.chat.vo.RatingVO;
+import com.aiplatform.modules.badges.service.BadgeService;
 import com.aiplatform.modules.learning.service.LearningService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -50,6 +51,7 @@ public class ChatService {
     private final MessageMapper messageMapper;
     private final AiGateway aiGateway;
     private final LearningService learningService;
+    private final BadgeService badgeService;
     private final ObjectMapper objectMapper;
 
     // ============ 创建对话 ============
@@ -222,6 +224,12 @@ public class ChatService {
         if (conv.getTopicId() != null && !conv.getTopicId().isBlank()) {
             learningService.updateProgress(userId, conv.getTopicId(), rating);
         }
+
+        // 徽章触发：首次评分 / 累计对话数
+        badgeService.checkAndUnlock(userId, "first_rating", 1);
+        long convCount = conversationMapper.selectCount(new LambdaQueryWrapper<Conversation>()
+                .eq(Conversation::getUserId, userId));
+        badgeService.checkAndUnlock(userId, "conversation_count", (int) convCount);
 
         RatingVO vo = new RatingVO();
         vo.setConversationId(conversationId);
