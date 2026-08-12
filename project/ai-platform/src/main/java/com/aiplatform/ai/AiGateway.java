@@ -45,13 +45,21 @@ public class AiGateway {
     }
 
     /**
-     * 文本输出调用
+     * 文本输出调用（默认温度）
      */
     public String chatText(String userId, List<ChatMessage> messages, Integer maxTokens) {
+        return chatTextDetail(userId, messages, maxTokens, null).content();
+    }
+
+    /**
+     * 文本输出调用，返回内容 + token 用量，支持自定义温度
+     */
+    public AiResponse chatTextDetail(String userId, List<ChatMessage> messages, Integer maxTokens,
+                                     Double temperature) {
         checkQuota(userId);
         try {
             return retry.executeSupplier(() ->
-                    circuitBreaker.executeSupplier(() -> httpClient.chat(messages, false, maxTokens)));
+                    circuitBreaker.executeSupplier(() -> httpClient.chatDetail(messages, false, maxTokens, temperature)));
         } catch (Exception e) {
             log.error("AI 调用失败: {}", e.getMessage());
             throw new BizException(500, "AI 服务暂时不可用，请稍后重试");

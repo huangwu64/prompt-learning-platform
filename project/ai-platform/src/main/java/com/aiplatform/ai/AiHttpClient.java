@@ -36,13 +36,22 @@ public class AiHttpClient {
     }
 
     /**
-     * 发送对话请求，返回模型输出文本
+     * 发送对话请求，返回模型输出文本（默认温度）
      */
     public String chat(List<ChatMessage> messages, boolean jsonMode, Integer maxTokens) {
+        return chatDetail(messages, jsonMode, maxTokens, null).content();
+    }
+
+    /**
+     * 发送对话请求，返回内容 + token 用量
+     */
+    public AiResponse chatDetail(List<ChatMessage> messages, boolean jsonMode, Integer maxTokens,
+                                 Double temperature) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("model", props.getDeepseek().getModel());
         body.put("messages", messages);
         body.put("max_tokens", maxTokens != null ? maxTokens : props.getDeepseek().getMaxTokens());
+        body.put("temperature", temperature != null ? temperature : 0.7);
         if (jsonMode) {
             body.put("response_format", Map.of("type", "json_object"));
         }
@@ -56,6 +65,12 @@ public class AiHttpClient {
         if (resp == null || !resp.has("choices") || resp.get("choices").isEmpty()) {
             throw new BizException(500, "AI 服务暂时不可用，请稍后重试");
         }
-        return resp.path("choices").get(0).path("message").path("content").asText();
+        JsonNode message = resp.path("choices").get(0).path("message");
+        JsonNode usage = resp.path("usage");
+        return new AiResponse(
+                message.path("content").asText(),
+                usage.path("prompt_tokens").asInt(0),
+                usage.path("completion_tokens").asInt(0),
+                usage.path("total_tokens").asInt(0));
     }
 }
