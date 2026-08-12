@@ -14,11 +14,11 @@ esac
 # 去掉首行后的附加内容，只校验首行
 FIRST_LINE=$(printf '%s' "$MSG" | sed -n '1p')
 
-if ! printf '%s' "$FIRST_LINE" | grep -qE '^(feat|fix|docs|style|refactor|test|chore|build|ci)(\([a-zA-Z0-9_/-]+\))?: .+'; then
+if ! printf '%s' "$FIRST_LINE" | grep -qE '^(feat|fix|docs|style|refactor|test|chore|build|ci|revert)(\([a-zA-Z0-9_/-]+\))?: .+'; then
   echo "✗ 提交信息格式错误" >&2
   echo "  格式: <type>(<scope>): <描述>" >&2
   echo "  示例: feat(chat): 实现对话追问接口" >&2
-  echo "  类型: feat/fix/docs/style/refactor/test/chore/build/ci" >&2
+  echo "  类型: feat/fix/docs/style/refactor/test/chore/build/ci/revert" >&2
   echo "  scope 可选，建议用模块名（chat/auth/works 等）" >&2
   exit 1
 fi
