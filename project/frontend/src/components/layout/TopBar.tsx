@@ -1,16 +1,16 @@
-import { Sparkles } from "lucide-react";
+import { Map, MessageSquare, FileText, Trophy, FlaskConical, Radar } from "lucide-react";
 import { useUiStore } from "@/store/uiStore";
 import { useAuthStore } from "@/store/authStore";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-/** 顶栏模块名映射 */
-const sectionNames: Record<string, string> = {
-  learning: "学习地图",
-  chat: "苏格拉底对话",
-  works: "作品工厂",
-  challenge: "提示词挑战赛",
-  lab: "提示词实验室",
-  profile: "AI 能力雷达",
+/** 顶栏模块映射（图标 + 名称） */
+const sectionMeta: Record<string, { label: string; icon: typeof Map }> = {
+  learning: { label: "学习地图", icon: Map },
+  chat: { label: "苏格拉底对话", icon: MessageSquare },
+  works: { label: "作品工厂", icon: FileText },
+  challenge: { label: "提示词挑战赛", icon: Trophy },
+  lab: { label: "提示词实验室", icon: FlaskConical },
+  profile: { label: "AI 能力雷达", icon: Radar },
 };
 
 /**
@@ -24,12 +24,18 @@ export function TopBar() {
   return (
     <header className="h-12 shrink-0 bg-white border-b border-[#E5E6EA] px-4 flex items-center justify-between">
       <div className="flex items-center gap-2.5 min-w-0">
-        <span className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center shrink-0">
-          <Sparkles className="w-3 h-3 text-white" />
-        </span>
-        <span className="text-sm font-semibold text-[#171717] whitespace-nowrap">Spark</span>
+        <span className="text-sm font-semibold text-[#171717] whitespace-nowrap font-display">Spark</span>
         <span className="text-[#D6D8DE]">/</span>
-        <span className="text-sm text-[#737373] truncate">{sectionNames[activeSection] ?? "工作台"}</span>
+        {(() => {
+          const meta = sectionMeta[activeSection];
+          const Icon = meta?.icon ?? Map;
+          return (
+            <span className="flex items-center gap-1.5 text-sm text-[#737373] truncate">
+              <Icon className="w-4 h-4 text-blue-600" />
+              {meta?.label ?? "工作台"}
+            </span>
+          );
+        })()}
       </div>
 
       <Avatar className="w-7 h-7 shrink-0 border border-[#E5E6EA]">

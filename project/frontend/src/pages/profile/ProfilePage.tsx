@@ -20,6 +20,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { profileService } from "@/services/profileService";
+import { CountUp } from "@/components/common/CountUp";
 import { learningService } from "@/services/learningService";
 import { badgeService } from "@/services/badgeService";
 import { useAuthStore } from "@/store/authStore";
@@ -54,13 +55,16 @@ function buildSuggestion(radar: Record<string, number>): { dimension: string; te
   return { dimension: lowest.label, text: suggestions[lowest.key] };
 }
 
-function StatItem({ icon: Icon, label, value, color }: { icon: typeof Star; label: string; value: string; color: string }) {
+function StatItem({ icon: Icon, label, value, decimals = 0, suffix = "", color }: { icon: typeof Star; label: string; value: number; decimals?: number; suffix?: string; color: string }) {
   return (
     <div className="flex items-center gap-3 bg-white border-[#E5E6EA] rounded-2xl px-4 py-3">
       <Icon className="w-4 h-4 shrink-0" style={{ color }} />
       <div className="min-w-0">
         <p className="text-[11px] text-[#A0A0A8]">{label}</p>
-        <p className="text-sm font-semibold text-[#171717]">{value}</p>
+        <p className="text-sm font-semibold text-[#171717]">
+          <CountUp value={value} decimals={decimals} />
+          {suffix}
+        </p>
       </div>
     </div>
   );
@@ -219,10 +223,10 @@ export default function ProfilePage() {
           <div className="wb-card flex-1">
             <h3 className="text-sm font-semibold text-[#171717] mb-3">学习统计</h3>
             <div className="flex flex-col gap-2">
-              <StatItem icon={MessageSquare} label="总对话数" value={String(stats.totalConversations)} color="#38BDF8" />
-              <StatItem icon={Star} label="平均评分" value={`${stats.averageRating.toFixed(1)} / 5`} color="#4B3FE3" />
-              <StatItem icon={Flame} label="连续打卡" value={`${stats.streakDays} 天`} color="#EC4899" />
-              <StatItem icon={CheckCircle2} label="已掌握知识点" value={`${stats.masteredCount} 个`} color="#22D3EE" />
+              <StatItem icon={MessageSquare} label="总对话数" value={stats.totalConversations} color="#38BDF8" />
+              <StatItem icon={Star} label="平均评分" value={stats.averageRating} decimals={1} suffix=" / 5" color="#4B3FE3" />
+              <StatItem icon={Flame} label="连续打卡" value={stats.streakDays} suffix=" 天" color="#EC4899" />
+              <StatItem icon={CheckCircle2} label="已掌握知识点" value={stats.masteredCount} suffix=" 个" color="#22D3EE" />
             </div>
           </div>
         </div>

@@ -13,6 +13,7 @@ import {
   Crown,
 } from "lucide-react";
 import { learningService } from "@/services/learningService";
+import { CountUp } from "@/components/common/CountUp";
 import { badgeService } from "@/services/badgeService";
 import { useAuthStore } from "@/store/authStore";
 import { useUiStore } from "@/store/uiStore";
@@ -47,7 +48,7 @@ function StatCard({
 }: {
   icon: typeof Star;
   label: string;
-  value: string;
+  value: number;
   suffix?: string;
   color: string;
 }) {
@@ -62,7 +63,7 @@ function StatCard({
       <div className="min-w-0">
         <p className="text-xs text-[#737373]">{label}</p>
         <p className="text-xl md:text-2xl font-semibold text-[#171717] mt-0.5">
-          {value}
+          {value === 0 && label === "平均评分" ? "—" : <CountUp value={value} decimals={label === "平均评分" ? 1 : 0} />}
           {suffix && <span className="text-sm text-[#737373] font-normal ml-1">{suffix}</span>}
         </p>
       </div>
@@ -271,21 +272,21 @@ export default function LearningMapPage() {
         <StatCard
           icon={Star}
           label="平均评分"
-          value={progress.stats.averageRating ? progress.stats.averageRating.toFixed(1) : "—"}
+          value={progress.stats.averageRating}
           suffix="/5"
           color="#4B3FE3"
         />
         <StatCard
           icon={Flame}
           label="连续打卡"
-          value={String(progress.stats.streakDays)}
+          value={progress.stats.streakDays}
           suffix="天"
           color="#EC4899"
         />
         <StatCard
           icon={CheckCircle2}
           label="已掌握知识点"
-          value={String(progress.stats.masteredCount)}
+          value={progress.stats.masteredCount}
           suffix="个"
           color="#22D3EE"
         />

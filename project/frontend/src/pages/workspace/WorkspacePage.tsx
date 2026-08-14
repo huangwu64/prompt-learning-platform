@@ -19,10 +19,10 @@ export default function WorkspacePage() {
     <AnimatePresence mode="wait">
       <motion.div
         key={activeSection}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -12 }}
-        transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0, x: 24 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -24 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
         className="flex flex-col"
       >
         {activeSection === "learning" && <LearningMapPage />}
