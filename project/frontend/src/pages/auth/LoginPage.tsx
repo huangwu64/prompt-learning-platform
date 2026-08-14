@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useAuthStore } from "@/store/authStore";
 import { authService } from "@/services/authService";
 import { ParticleField } from "@/components/common/ParticleField";
@@ -30,7 +29,6 @@ const valuePoints = [
   { icon: Trophy, title: "每日挑战赛", desc: "四维评分 + 排行榜，和高手同台竞技" },
 ];
 
-/** 入场 stagger（编辑感渐次浮现） */
 const containerVar = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
@@ -45,7 +43,7 @@ export default function LoginPage() {
   const login = useAuthStore((s) => s.login);
   const reduceMotion = useReducedMotion();
 
-  // 3D 悬浮（景深）
+  // 3D 悬浮（应用于整张面板，一体化）
   const rx = useMotionValue(0);
   const ry = useMotionValue(0);
   const srx = useSpring(rx, { stiffness: 220, damping: 24 });
@@ -132,8 +130,8 @@ export default function LoginPage() {
     const r = e.currentTarget.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;
-    ry.set(px * 7);
-    rx.set(-py * 6);
+    ry.set(px * 6);
+    rx.set(-py * 5);
   };
   const resetTilt = () => {
     rx.set(0);
@@ -144,7 +142,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-bg relative min-h-screen overflow-hidden">
-      {/* 背景水印大字（编辑感，填补留白） */}
+      {/* 背景水印大字 */}
       <div aria-hidden className="login-watermark pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         提问的深度
         <br />
@@ -157,93 +155,88 @@ export default function LoginPage() {
       <div aria-hidden className="pointer-events-none absolute -top-16 -right-20 w-[420px] h-[420px] rounded-full bg-amber-400/[0.05] blur-3xl" />
       <ParticleField />
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-8 px-6 py-10 md:flex-row md:gap-14 md:px-10">
-        {/* 移动端顶部标语 */}
-        <div className="md:hidden text-center">
-          <p className="text-xs font-medium tracking-[0.18em] text-blue-600">SPARK · 零基础学AI</p>
-        </div>
-
-        {/* 左栏：品牌叙事 */}
+      {/* 统一"纸张面板"：左右栏同一维度 */}
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center px-4 py-10 md:px-8">
         <motion.div
-          variants={containerVar}
-          initial="hidden"
-          animate={success ? "hidden" : "show"}
-          className="hidden md:block md:flex-1 min-w-0"
-        >
-          <motion.p variants={itemVar} className="text-xs font-medium tracking-[0.18em] text-blue-600">
-            SPARK · 零基础学AI
-          </motion.p>
-          <motion.h1
-            variants={itemVar}
-            className="wb-title text-4xl xl:text-5xl leading-[1.15] mt-5 text-[#171717]"
-          >
-            把模糊的需求，
-            <br />
-            问成一句话。
-          </motion.h1>
-          <motion.p variants={itemVar} className="mt-5 max-w-md text-sm leading-relaxed text-[#737373]">
-            不需要懂术语。从一句"帮我写个邮件"开始，在对话里学会角色、任务、格式、约束——让 AI 真正听懂你。
-          </motion.p>
-
-          <motion.div variants={itemVar} className="mt-9 flex flex-col gap-4">
-            {valuePoints.map((v) => (
-              <div key={v.title} className="flex items-start gap-3.5">
-                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#E5E6EA] bg-white">
-                  <v.icon className="h-4 w-4 text-blue-600" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-[#171717]">{v.title}</p>
-                  <p className="text-xs text-[#A0A0A8] mt-0.5">{v.desc}</p>
-                </div>
-              </div>
-            ))}
-          </motion.div>
-
-          <motion.div
-            variants={itemVar}
-            className="mt-10 flex items-center gap-6 text-xs text-[#737373]"
-          >
-            <span className="flex items-center gap-1.5">
-              <Star className="h-3.5 w-3.5 fill-blue-500 text-blue-500" />
-              平均评分 4.2 / 5
-            </span>
-            <span className="h-3 w-px bg-[#E5E6EA]" />
-            <span>7 天成长计划</span>
-            <span className="h-3 w-px bg-[#E5E6EA]" />
-            <span>6 大学习模块</span>
-          </motion.div>
-        </motion.div>
-
-        {/* 右栏：登录卡 */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={success ? { opacity: 0, y: -10, scale: 0.985 } : { opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={success ? { opacity: 0, y: -12, scale: 0.985 } : { opacity: 1, y: 0 }}
           transition={motionProps}
-          style={{ rotateX: srx, rotateY: sry, transformPerspective: 1100 }}
+          style={{ rotateX: srx, rotateY: sry, transformPerspective: 1200 }}
           onMouseMove={handleTilt}
           onMouseLeave={resetTilt}
-          className={`w-full md:w-[420px] shrink-0 ${shake ? "animate-login-shake" : ""}`}
+          className={`relative w-full overflow-hidden rounded-[24px] border border-white/80 bg-white/60 backdrop-blur-xl shadow-[0_32px_80px_-20px_rgba(75,63,227,0.18)] ${shake ? "animate-login-shake" : ""}`}
         >
-          <Card className="overflow-hidden bg-white/85 backdrop-blur-md shadow-[0_24px_60px_-15px_rgba(75,63,227,0.16)]">
-            {/* 顶部出版色条 */}
-            <div className="h-[2px] w-full bg-blue-600" />
-            <CardHeader className="text-center relative overflow-hidden bg-gradient-to-b from-blue-500/[0.09] to-transparent pt-10 pb-6">
-              <span className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full border border-[#E5E6EA] bg-[#F7F8FA] px-3 py-1 text-[10px] tracking-wide text-[#3A3A3A]">
-                7 天成长计划
-              </span>
-              <div
-                className="mx-auto mb-5 w-10 h-[3px] rounded-full transition-colors duration-300"
-                style={{ backgroundColor: success ? "#00B983" : "#4B3FE3" }}
-              />
-              <CardTitle className="font-display text-3xl tracking-tight">Spark</CardTitle>
-              <p className="text-[11px] text-[#A0A0A8] mt-2 tracking-[0.08em]">{TAGLINE}</p>
-              <CardDescription className="mt-3">
-                {isLogin ? "欢迎回来，继续你的学习之旅" : "创建账号，开启 7 天学习计划"}
-              </CardDescription>
-            </CardHeader>
-            <div className="h-px bg-[#F0F1F4]" />
-            <CardContent>
-              <p className="mb-1 text-[11px] font-medium tracking-[0.14em] text-[#A0A0A8]">账号信息</p>
+          {/* 面板顶部出版色条 */}
+          <div className="h-[2px] w-full bg-blue-600" />
+
+          <div className="flex flex-col md:flex-row">
+            {/* ===== 左栏：品牌叙事（面板内） ===== */}
+            <motion.div
+              variants={containerVar}
+              initial="hidden"
+              animate="show"
+              className="flex-1 min-w-0 p-8 md:p-12"
+            >
+              <motion.p variants={itemVar} className="text-xs font-medium tracking-[0.18em] text-blue-600">
+                SPARK · 零基础学AI
+              </motion.p>
+              <motion.h1 variants={itemVar} className="wb-title text-3xl xl:text-[2.75rem] leading-[1.15] mt-5 text-[#171717]">
+                把模糊的需求，
+                <br />
+                问成一句话。
+              </motion.h1>
+              <motion.p variants={itemVar} className="mt-5 max-w-md text-sm leading-relaxed text-[#737373]">
+                不需要懂术语。从一句"帮我写个邮件"开始，在对话里学会角色、任务、格式、约束——让 AI 真正听懂你。
+              </motion.p>
+
+              <motion.div variants={itemVar} className="mt-9 flex flex-col gap-4">
+                {valuePoints.map((v) => (
+                  <div key={v.title} className="flex items-start gap-3.5">
+                    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#E5E6EA] bg-white/80">
+                      <v.icon className="h-4 w-4 text-blue-600" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[#171717]">{v.title}</p>
+                      <p className="text-xs text-[#A0A0A8] mt-0.5">{v.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+
+              <motion.div variants={itemVar} className="mt-10 flex items-center gap-6 text-xs text-[#737373]">
+                <span className="flex items-center gap-1.5">
+                  <Star className="h-3.5 w-3.5 fill-blue-500 text-blue-500" />
+                  平均评分 4.2 / 5
+                </span>
+                <span className="h-3 w-px bg-[#D6D8DE]" />
+                <span>7 天成长计划</span>
+                <span className="h-3 w-px bg-[#D6D8DE]" />
+                <span>6 大学习模块</span>
+              </motion.div>
+            </motion.div>
+
+            {/* ===== 栏间分隔线 ===== */}
+            <div className="hidden md:block w-px shrink-0 bg-[#E5E6EA]/80" />
+            <div className="md:hidden mx-8 h-px bg-[#E5E6EA]/80" />
+
+            {/* ===== 右栏：登录表单（面板内，无独立卡片） ===== */}
+            <div className="w-full md:w-[420px] shrink-0 p-8 md:p-10">
+              <div className="text-center">
+                <span className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full border border-[#E5E6EA] bg-white/70 px-3 py-1 text-[10px] tracking-wide text-[#3A3A3A]">
+                  7 天成长计划
+                </span>
+                <div
+                  className="mx-auto mb-5 w-10 h-[3px] rounded-full transition-colors duration-300"
+                  style={{ backgroundColor: success ? "#00B983" : "#4B3FE3" }}
+                />
+                <h2 className="wb-title font-display text-3xl tracking-tight text-[#171717]">Spark</h2>
+                <p className="text-[11px] text-[#A0A0A8] mt-2 tracking-[0.08em]">{TAGLINE}</p>
+                <p className="mt-3 text-sm text-[#737373]">
+                  {isLogin ? "欢迎回来，继续你的学习之旅" : "创建账号，开启 7 天学习计划"}
+                </p>
+              </div>
+
+              <p className="mb-1 mt-6 text-[11px] font-medium tracking-[0.14em] text-[#A0A0A8]">账号信息</p>
               <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
                 {!isLogin && (
                   <div className="flex flex-col gap-1.5">
@@ -321,25 +314,24 @@ export default function LoginPage() {
                 </button>
 
                 <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-[#F0F1F4]" />
+                  <div className="h-px flex-1 bg-[#E5E6EA]" />
                   <span className="text-[10px] text-[#A0A0A8] uppercase tracking-wider">或</span>
-                  <div className="h-px flex-1 bg-[#F0F1F4]" />
+                  <div className="h-px flex-1 bg-[#E5E6EA]" />
                 </div>
 
                 <button type="button" onClick={handleDemoLogin} className="wb-btn magnetic !bg-blue-50 !border-blue-100 !text-blue-700 hover:!bg-blue-100">
                   以游客身份体验（免登录预览）
                 </button>
 
-                {/* 测试账号提示（需求文档 4.8 约定） */}
-                <div className="flex items-center gap-2 rounded-xl border border-[#E5E6EA] bg-[#F7F8FA] px-3 py-2.5 text-[11px] text-[#737373]">
+                <div className="flex items-center gap-2 rounded-xl border border-[#E5E6EA] bg-white/60 px-3 py-2.5 text-[11px] text-[#737373]">
                   <span className="font-medium text-[#3A3A3A]">测试账号</span>
                   test@example.com / 123456
                 </div>
 
                 <p className="text-center text-[10px] text-[#A0A0A8]">免费注册 · 无需绑定支付</p>
               </form>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>
