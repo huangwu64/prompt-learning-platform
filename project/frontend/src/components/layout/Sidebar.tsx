@@ -66,16 +66,14 @@ export function Sidebar() {
   /* ===== 展开态 ===== */
   return (
     <aside className="sticky top-0 h-screen w-60 shrink-0 bg-[#F0F1F4] border-r border-[#E5E6EA] flex flex-col">
-      {/* 品牌区：出版感刊徽（无星火图标，去 AI 味） */}
-      <div className="h-[68px] px-4 border-b border-[#E5E6EA] flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-[#D6D8DE] bg-white shadow-[0_1px_2px_rgba(23,23,23,0.05)]">
-            <span className="font-display text-[15px] font-bold text-[#171717] leading-none">S</span>
-          </span>
-          <div className="min-w-0">
-            <p className="font-display text-[15px] font-semibold text-[#171717] leading-none tracking-tight">Spark</p>
-            <p className="text-[10px] text-[#A0A0A8] mt-1 truncate tracking-wide">提示词工程 · 学习工作台</p>
-          </div>
+      {/* 品牌区：刊徽 + 字标（折叠按钮独立占位，不与文字干涉） */}
+      <div className="h-[68px] px-3 border-b border-[#E5E6EA] flex items-center gap-2 shrink-0">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-[#D6D8DE] bg-white shadow-[0_1px_2px_rgba(23,23,23,0.05)]">
+          <span className="font-display text-[15px] font-bold text-[#171717] leading-none">S</span>
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-[15px] font-semibold text-[#171717] leading-none tracking-tight truncate">Spark</p>
+          <p className="text-[10px] text-[#A0A0A8] mt-1 truncate tracking-wide">学习工作台</p>
         </div>
         <button
           onClick={toggleSidebar}
