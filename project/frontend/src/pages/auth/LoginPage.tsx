@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
-import { Sparkles, Loader2, Check, AlertCircle } from "lucide-react";
+import { Loader2, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -75,9 +75,9 @@ export default function LoginPage() {
             username: (form.username ?? "").trim(),
           });
       login(data.token, data.user);
-      // 成功焦点时刻：logo 变勾 → 卡片淡出上移 → 进入工作台
+      // 成功焦点时刻：短横线转绿 → 卡片淡出上移 → 进入工作台
       setSuccess(true);
-      await delay(reduceMotion ? 0 : 520);
+      await delay(reduceMotion ? 0 : 480);
       navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "操作失败");
@@ -111,20 +111,15 @@ export default function LoginPage() {
       >
         <Card>
           <CardHeader className="text-center">
+            {/* 出版感装饰短横线（成功时转绿） */}
             <div
-              className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-[#6B5BFF] flex items-center justify-center shadow-lg shadow-blue-600/25 transition-transform duration-300"
-              style={{ transform: success ? "scale(1.08)" : undefined }}
-            >
-              {success ? (
-                <Check className="w-6 h-6 text-white" strokeWidth={3} />
-              ) : (
-                <Sparkles className="w-6 h-6 text-white" />
-              )}
-            </div>
-            <CardTitle className="font-display text-2xl tracking-tight">Spark</CardTitle>
-            <p className="text-[11px] text-[#A0A0A8] mt-1.5 tracking-[0.06em]">{TAGLINE}</p>
+              className="mx-auto mb-5 w-10 h-[3px] rounded-full transition-colors duration-300"
+              style={{ backgroundColor: success ? "#00B983" : "#4B3FE3" }}
+            />
+            <CardTitle className="font-display text-3xl tracking-tight">Spark</CardTitle>
+            <p className="text-[11px] text-[#A0A0A8] mt-2 tracking-[0.08em]">{TAGLINE}</p>
             <CardDescription className="mt-3">
-              {isLogin ? "登录你的账号，继续你的学习" : "创建新账号，开始 7 天成长计划"}
+              {isLogin ? "欢迎回来，继续你的学习之旅" : "创建账号，开启 7 天学习计划"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -189,7 +184,7 @@ export default function LoginPage() {
 
               <Button type="submit" variant="primary" disabled={loading} className="mt-2 magnetic">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : success ? <Check className="w-4 h-4" /> : null}
-                {loading ? "处理中…" : success ? "进入学习…" : isLogin ? "登录" : "注册"}
+                {loading ? "处理中…" : success ? "开始使用" : isLogin ? "登录" : "注册"}
               </Button>
 
               <button
@@ -211,7 +206,6 @@ export default function LoginPage() {
               </div>
 
               <button type="button" onClick={handleDemoLogin} className="wb-btn magnetic">
-                <Sparkles className="w-4 h-4" />
                 以游客身份体验（免登录预览）
               </button>
             </form>

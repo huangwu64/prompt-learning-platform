@@ -70,7 +70,7 @@
 
   .wb-btn-primary {
     @apply border-transparent bg-blue-600 text-white hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg;
-    box-shadow: 0 2px 8px rgba(75, 63, 227, 0.28);
+    box-shadow: 0 1px 2px rgba(23, 23, 23, 0.06);
   }
 
   .wb-btn-ghost {
@@ -222,11 +222,11 @@ body::after {
 
 /* ===== 登录页：品牌背景 + 错误轻晃 ===== */
 .login-bg {
-  background: radial-gradient(640px circle at 50% -5%, rgba(75, 63, 227, 0.09), transparent 62%), #F6F7F9;
+  background: linear-gradient(180deg, rgba(75, 63, 227, 0.04), transparent 280px), #F6F7F9;
 }
 @media (max-width: 640px) {
   .login-bg {
-    background: radial-gradient(480px circle at 50% -5%, rgba(75, 63, 227, 0.05), transparent 60%), #F6F7F9;
+    background: linear-gradient(180deg, rgba(75, 63, 227, 0.03), transparent 200px), #F6F7F9;
   }
 }
 @keyframes loginShake {
