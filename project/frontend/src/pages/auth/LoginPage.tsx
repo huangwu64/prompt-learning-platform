@@ -19,10 +19,11 @@ import type { LoginRequest } from "@/types";
 
 const TAGLINE = "零基础学AI · 提问的深度，决定答案的高度";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PAPER_NOISE =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
 type FieldErrors = { email?: string; password?: string; username?: string };
 
-/** 左栏品牌叙事：产品三大机制（来自需求文档，不虚构） */
 const valuePoints = [
   { icon: MessageSquareText, title: "苏格拉底式追问", desc: "2—5 轮对话引导你完善提示词，练出好问题" },
   { icon: Wand2, title: "即用即走的作品工厂", desc: "邮件 / 报告 / 社交文案，一键生成可用内容" },
@@ -43,7 +44,6 @@ export default function LoginPage() {
   const login = useAuthStore((s) => s.login);
   const reduceMotion = useReducedMotion();
 
-  // 3D 悬浮（应用于整张面板，一体化）
   const rx = useMotionValue(0);
   const ry = useMotionValue(0);
   const srx = useSpring(rx, { stiffness: 220, damping: 24 });
@@ -130,8 +130,8 @@ export default function LoginPage() {
     const r = e.currentTarget.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;
-    ry.set(px * 6);
-    rx.set(-py * 5);
+    ry.set(px * 5);
+    rx.set(-py * 4);
   };
   const resetTilt = () => {
     rx.set(0);
@@ -155,78 +155,89 @@ export default function LoginPage() {
       <div aria-hidden className="pointer-events-none absolute -top-16 -right-20 w-[420px] h-[420px] rounded-full bg-amber-400/[0.05] blur-3xl" />
       <ParticleField />
 
-      {/* 统一"纸张面板"：左右栏同一维度 */}
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center px-4 py-10 md:px-8">
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-12 px-6 py-12 md:flex-row md:px-10">
+        {/* 移动端顶部标语 */}
+        <div className="md:hidden text-center">
+          <p className="text-xs font-medium tracking-[0.18em] text-blue-600">SPARK · 零基础学AI</p>
+        </div>
+
+        {/* ===== 左栏：品牌叙事 ===== */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={success ? { opacity: 0, y: -12, scale: 0.985 } : { opacity: 1, y: 0 }}
-          transition={motionProps}
-          style={{ rotateX: srx, rotateY: sry, transformPerspective: 1200 }}
-          onMouseMove={handleTilt}
-          onMouseLeave={resetTilt}
-          className={`relative w-full overflow-hidden rounded-[24px] border border-white/80 bg-white/60 backdrop-blur-xl shadow-[0_32px_80px_-20px_rgba(75,63,227,0.18)] ${shake ? "animate-login-shake" : ""}`}
+          variants={containerVar}
+          initial="hidden"
+          animate="show"
+          className="hidden md:block md:flex-1 min-w-0"
         >
-          {/* 面板顶部出版色条 */}
-          <div className="h-[2px] w-full bg-blue-600" />
+          <motion.p variants={itemVar} className="text-xs font-medium tracking-[0.18em] text-blue-600">
+            SPARK · 零基础学AI
+          </motion.p>
+          <motion.h1 variants={itemVar} className="wb-title text-4xl xl:text-5xl leading-[1.15] mt-5 text-[#171717]">
+            把模糊的需求，
+            <br />
+            问成一句话。
+          </motion.h1>
+          <motion.p variants={itemVar} className="mt-5 max-w-md text-sm leading-relaxed text-[#737373]">
+            不需要懂术语。从一句"帮我写个邮件"开始，在对话里学会角色、任务、格式、约束——让 AI 真正听懂你。
+          </motion.p>
 
-          <div className="flex flex-col md:flex-row">
-            {/* ===== 左栏：品牌叙事（面板内） ===== */}
-            <motion.div
-              variants={containerVar}
-              initial="hidden"
-              animate="show"
-              className="flex-1 min-w-0 p-8 md:p-12"
-            >
-              <motion.p variants={itemVar} className="text-xs font-medium tracking-[0.18em] text-blue-600">
-                SPARK · 零基础学AI
-              </motion.p>
-              <motion.h1 variants={itemVar} className="wb-title text-3xl xl:text-[2.75rem] leading-[1.15] mt-5 text-[#171717]">
-                把模糊的需求，
-                <br />
-                问成一句话。
-              </motion.h1>
-              <motion.p variants={itemVar} className="mt-5 max-w-md text-sm leading-relaxed text-[#737373]">
-                不需要懂术语。从一句"帮我写个邮件"开始，在对话里学会角色、任务、格式、约束——让 AI 真正听懂你。
-              </motion.p>
-
-              <motion.div variants={itemVar} className="mt-9 flex flex-col gap-4">
-                {valuePoints.map((v) => (
-                  <div key={v.title} className="flex items-start gap-3.5">
-                    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#E5E6EA] bg-white/80">
-                      <v.icon className="h-4 w-4 text-blue-600" />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[#171717]">{v.title}</p>
-                      <p className="text-xs text-[#A0A0A8] mt-0.5">{v.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </motion.div>
-
-              <motion.div variants={itemVar} className="mt-10 flex items-center gap-6 text-xs text-[#737373]">
-                <span className="flex items-center gap-1.5">
-                  <Star className="h-3.5 w-3.5 fill-blue-500 text-blue-500" />
-                  平均评分 4.2 / 5
+          <motion.div variants={itemVar} className="mt-9 flex flex-col gap-4">
+            {valuePoints.map((v) => (
+              <div key={v.title} className="flex items-start gap-3.5">
+                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#E5E6EA] bg-white/80">
+                  <v.icon className="h-4 w-4 text-blue-600" />
                 </span>
-                <span className="h-3 w-px bg-[#D6D8DE]" />
-                <span>7 天成长计划</span>
-                <span className="h-3 w-px bg-[#D6D8DE]" />
-                <span>6 大学习模块</span>
-              </motion.div>
-            </motion.div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-[#171717]">{v.title}</p>
+                  <p className="text-xs text-[#A0A0A8] mt-0.5">{v.desc}</p>
+                </div>
+              </div>
+            ))}
+          </motion.div>
 
-            {/* ===== 栏间分隔线 ===== */}
-            <div className="hidden md:block w-px shrink-0 bg-[#E5E6EA]/80" />
-            <div className="md:hidden mx-8 h-px bg-[#E5E6EA]/80" />
+          <motion.div variants={itemVar} className="mt-10 flex items-center gap-6 text-xs text-[#737373]">
+            <span className="flex items-center gap-1.5">
+              <Star className="h-3.5 w-3.5 fill-blue-500 text-blue-500" />
+              平均评分 4.2 / 5
+            </span>
+            <span className="h-3 w-px bg-[#D6D8DE]" />
+            <span>7 天成长计划</span>
+            <span className="h-3 w-px bg-[#D6D8DE]" />
+            <span>6 大学习模块</span>
+          </motion.div>
+        </motion.div>
 
-            {/* ===== 右栏：登录表单（面板内，无独立卡片） ===== */}
-            <div className="w-full md:w-[420px] shrink-0 p-8 md:p-10">
+        {/* ===== 右栏：信纸卡片（以"一张纸"的形式存在） ===== */}
+        <div className="w-full md:w-[420px] shrink-0">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={success ? { opacity: 0, y: -12, scale: 0.985 } : { opacity: 1, y: 0 }}
+            transition={motionProps}
+            style={{ rotateX: srx, rotateY: sry, transformPerspective: 1200 }}
+            onMouseMove={handleTilt}
+            onMouseLeave={resetTilt}
+            className={`relative overflow-hidden rounded-[20px] border border-[#E8E5DF] bg-[#FDFCFA] shadow-[0_20px_45px_-15px_rgba(75,63,227,0.14),0_3px_12px_rgba(23,23,23,0.05)] ${shake ? "animate-login-shake" : ""}`}
+          >
+            {/* 纸张噪点纹理（极淡，纸的质感） */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 opacity-[0.025]"
+              style={{ backgroundImage: PAPER_NOISE }}
+            />
+            {/* 纸张内高光（纸的厚度） */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(23,23,23,0.03)]" />
+
+            {/* 刊头（letterhead） */}
+            <div className="h-[2px] w-full bg-blue-600" />
+            <div className="px-8 pt-6 pb-4 text-center">
+              <p className="text-[10px] font-medium tracking-[0.24em] text-[#A0A0A8]">SPARK · 零基础学AI</p>
+              <div className="mx-auto mt-3 h-px w-14 bg-[#E5E2DA]" />
+            </div>
+
+            {/* 正文区 */}
+            <div className="px-8 pb-8">
               <div className="text-center">
-                <span className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full border border-[#E5E6EA] bg-white/70 px-3 py-1 text-[10px] tracking-wide text-[#3A3A3A]">
-                  7 天成长计划
-                </span>
                 <div
-                  className="mx-auto mb-5 w-10 h-[3px] rounded-full transition-colors duration-300"
+                  className="mx-auto mb-4 w-10 h-[3px] rounded-full transition-colors duration-300"
                   style={{ backgroundColor: success ? "#00B983" : "#4B3FE3" }}
                 />
                 <h2 className="wb-title font-display text-3xl tracking-tight text-[#171717]">Spark</h2>
@@ -314,16 +325,16 @@ export default function LoginPage() {
                 </button>
 
                 <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-[#E5E6EA]" />
+                  <div className="h-px flex-1 bg-[#E9E6E0]" />
                   <span className="text-[10px] text-[#A0A0A8] uppercase tracking-wider">或</span>
-                  <div className="h-px flex-1 bg-[#E5E6EA]" />
+                  <div className="h-px flex-1 bg-[#E9E6E0]" />
                 </div>
 
                 <button type="button" onClick={handleDemoLogin} className="wb-btn magnetic !bg-blue-50 !border-blue-100 !text-blue-700 hover:!bg-blue-100">
                   以游客身份体验（免登录预览）
                 </button>
 
-                <div className="flex items-center gap-2 rounded-xl border border-[#E5E6EA] bg-white/60 px-3 py-2.5 text-[11px] text-[#737373]">
+                <div className="flex items-center gap-2 rounded-xl border border-[#E9E6E0] bg-[#F6F4EF] px-3 py-2.5 text-[11px] text-[#737373]">
                   <span className="font-medium text-[#3A3A3A]">测试账号</span>
                   test@example.com / 123456
                 </div>
@@ -331,8 +342,8 @@ export default function LoginPage() {
                 <p className="text-center text-[10px] text-[#A0A0A8]">免费注册 · 无需绑定支付</p>
               </form>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
