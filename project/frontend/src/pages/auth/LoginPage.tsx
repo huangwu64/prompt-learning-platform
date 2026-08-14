@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useAuthStore } from "@/store/authStore";
+import { ParticleField } from "@/components/common/ParticleField";
 import { authService } from "@/services/authService";
 import type { LoginRequest } from "@/types";
 
@@ -102,12 +103,13 @@ export default function LoginPage() {
   const fieldCls = (err?: string) => (err ? "!border-red-300 focus:!ring-red-100" : "");
 
   return (
-    <div className="login-bg min-h-screen flex items-center justify-center px-6">
+    <div className="login-bg relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
+      <ParticleField />
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={success ? { opacity: 0, y: -10, scale: 0.985 } : { opacity: 1, y: 0 }}
         transition={reduceMotion ? { duration: 0 } : { duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-        className={`w-full max-w-md ${shake ? "animate-login-shake" : ""}`}
+        className={`relative z-10 w-full max-w-md ${shake ? "animate-login-shake" : ""}`}
       >
         <Card>
           <CardHeader className="text-center">
