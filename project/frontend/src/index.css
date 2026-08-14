@@ -222,7 +222,7 @@ body::after {
 
 /* ===== 登录页：品牌背景 + 错误轻晃 ===== */
 .login-bg {
-  background: linear-gradient(180deg, rgba(75, 63, 227, 0.04), transparent 280px), #F6F7F9;
+  background: linear-gradient(180deg, rgba(75, 63, 227, 0.06), transparent 320px), #F6F7F9;
 }
 @media (max-width: 640px) {
   .login-bg {
@@ -237,4 +237,16 @@ body::after {
 .animate-login-shake { animation: loginShake 0.2s ease-in-out; }
 @media (prefers-reduced-motion: reduce) {
   .animate-login-shake { animation: none; }
+}
+.login-watermark {
+  font-family: "Noto Serif SC", "Songti SC", Georgia, serif;
+  font-size: clamp(120px, 20vw, 300px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: rgba(75, 63, 227, 0.04);
+  user-select: none;
+  white-space: nowrap;
+  z-index: 0;
 }
