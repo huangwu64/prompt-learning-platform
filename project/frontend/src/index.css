@@ -219,3 +219,22 @@ body::after {
 }
 .magnetic { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; }
 @media (prefers-reduced-motion: reduce) { .magnetic { transition: none; } }
+
+/* ===== 登录页：品牌背景 + 错误轻晃 ===== */
+.login-bg {
+  background: radial-gradient(640px circle at 50% -5%, rgba(75, 63, 227, 0.09), transparent 62%), #F6F7F9;
+}
+@media (max-width: 640px) {
+  .login-bg {
+    background: radial-gradient(480px circle at 50% -5%, rgba(75, 63, 227, 0.05), transparent 60%), #F6F7F9;
+  }
+}
+@keyframes loginShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-7px); }
+  75% { transform: translateX(7px); }
+}
+.animate-login-shake { animation: loginShake 0.2s ease-in-out; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-login-shake { animation: none; }
+}
