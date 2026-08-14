@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, useMotionValue, useSpring } from "framer-motion";
 import { Loader2, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,25 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
   const reduceMotion = useReducedMotion();
+
+  // 3D 悬浮（景深）：鼠标移动时卡片轻微倾斜
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const srx = useSpring(rx, { stiffness: 220, damping: 24 });
+  const sry = useSpring(ry, { stiffness: 220, damping: 24 });
+
+  const handleTilt = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (reduceMotion) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    ry.set(px * 7);
+    rx.set(-py * 6);
+  };
+  const resetTilt = () => {
+    rx.set(0);
+    ry.set(0);
+  };
 
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -104,14 +123,21 @@ export default function LoginPage() {
 
   return (
     <div className="login-bg relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
+      {/* 景深：背景虚化光斑（近景卡片锐利） */}
+      <div aria-hidden className="pointer-events-none absolute -top-28 left-1/2 -translate-x-1/2 w-[560px] h-[420px] rounded-full bg-blue-500/[0.08] blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-32 -right-24 w-[460px] h-[460px] rounded-full bg-blue-400/[0.08] blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute top-1/3 -left-32 w-[380px] h-[380px] rounded-full bg-emerald-400/[0.05] blur-3xl" />
       <ParticleField />
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={success ? { opacity: 0, y: -10, scale: 0.985 } : { opacity: 1, y: 0 }}
         transition={reduceMotion ? { duration: 0 } : { duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+        style={{ rotateX: srx, rotateY: sry, transformPerspective: 1100 }}
+        onMouseMove={handleTilt}
+        onMouseLeave={resetTilt}
         className={`relative z-10 w-full max-w-md ${shake ? "animate-login-shake" : ""}`}
       >
-        <Card>
+        <Card className="shadow-[0_28px_70px_-18px_rgba(23,23,23,0.22)]">
           <CardHeader className="text-center">
             {/* 出版感装饰短横线（成功时转绿） */}
             <div
