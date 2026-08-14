@@ -77,7 +77,7 @@ export default function ChallengePage() {
   return (
     <div className="max-w-4xl mx-auto p-6 md:p-8 flex flex-col gap-6">
       <div>
-        <h1 className="wb-title text-2xl md:text-3xl">提示词挑战赛</h1>
+        <h1 className="wb-title text-2xl md:text-3xl">每日挑战赛</h1>
         <p className="wb-text text-sm mt-1.5">
           每日一题，写出更好的提示词，赢取排行榜名次
         </p>

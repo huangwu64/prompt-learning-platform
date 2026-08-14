@@ -164,7 +164,7 @@ export default function ProfilePage() {
   return (
     <div className="max-w-4xl mx-auto p-6 md:p-8 flex flex-col gap-6">
       <div>
-        <h1 className="wb-title text-2xl md:text-3xl">AI 能力雷达</h1>
+        <h1 className="wb-title text-2xl md:text-3xl">能力雷达</h1>
         <p className="wb-text text-sm mt-1.5">你的提示词能力成长可视化</p>
       </div>
 

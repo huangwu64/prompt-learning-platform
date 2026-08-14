@@ -101,23 +101,10 @@
 
   /* ===== 侧边导航项 ===== */
   .wb-nav-item {
-    @apply flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-app-t2 transition-all duration-200 ease-out hover:bg-app-chrome hover:text-blue-600 active:scale-[0.96] active:bg-blue-100/70 relative overflow-hidden;
+    @apply flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-app-t2 transition-all duration-200 ease-out hover:bg-[#E9EAEE] hover:text-blue-700 active:scale-[0.97] active:bg-blue-100/60 relative;
   }
 
-  /* 悬浮微光：靛蓝流光从左扫过（宣传页质感动效） */
-  .wb-nav-item::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(110deg, transparent 25%, rgba(75, 63, 227, 0.12) 50%, transparent 75%);
-    transform: translateX(-130%);
-    transition: transform 0.6s ease;
-    pointer-events: none;
-  }
-  .wb-nav-item:hover::after {
-    transform: translateX(130%);
-  }
+
 
 
   .wb-nav-item-active {

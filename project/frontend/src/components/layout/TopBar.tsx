@@ -10,7 +10,7 @@ const sectionMeta: Record<string, { label: string; icon: typeof Map }> = {
   works: { label: "作品工厂", icon: FileText },
   challenge: { label: "提示词挑战赛", icon: Trophy },
   lab: { label: "提示词实验室", icon: FlaskConical },
-  profile: { label: "AI 能力雷达", icon: Radar },
+  profile: { label: "能力雷达", icon: Radar },
 };
 
 /**
