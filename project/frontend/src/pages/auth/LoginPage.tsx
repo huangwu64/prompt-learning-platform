@@ -224,8 +224,10 @@ export default function LoginPage() {
           onMouseLeave={resetTilt}
           className={`w-full md:w-[420px] shrink-0 ${shake ? "animate-login-shake" : ""}`}
         >
-          <Card className="shadow-[0_28px_70px_-18px_rgba(23,23,23,0.22)]">
-            <CardHeader className="text-center">
+          <Card className="overflow-hidden shadow-[0_28px_70px_-18px_rgba(23,23,23,0.22)]">
+            {/* 顶部出版色条 */}
+            <div className="h-[2px] w-full bg-blue-600" />
+            <CardHeader className="text-center relative overflow-hidden bg-gradient-to-b from-blue-500/[0.07] to-transparent pt-10 pb-6">
               <span className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full border border-[#E5E6EA] bg-[#F7F8FA] px-3 py-1 text-[10px] tracking-wide text-[#3A3A3A]">
                 7 天成长计划
               </span>
@@ -239,7 +241,9 @@ export default function LoginPage() {
                 {isLogin ? "欢迎回来，继续你的学习之旅" : "创建账号，开启 7 天学习计划"}
               </CardDescription>
             </CardHeader>
+            <div className="h-px bg-[#F0F1F4]" />
             <CardContent>
+              <p className="mb-1 text-[11px] font-medium tracking-[0.14em] text-[#A0A0A8]">账号信息</p>
               <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
                 {!isLogin && (
                   <div className="flex flex-col gap-1.5">
@@ -322,7 +326,7 @@ export default function LoginPage() {
                   <div className="h-px flex-1 bg-[#F0F1F4]" />
                 </div>
 
-                <button type="button" onClick={handleDemoLogin} className="wb-btn magnetic">
+                <button type="button" onClick={handleDemoLogin} className="wb-btn magnetic !bg-blue-50 !border-blue-100 !text-blue-700 hover:!bg-blue-100">
                   以游客身份体验（免登录预览）
                 </button>
 
