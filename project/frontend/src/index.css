@@ -1,0 +1,221 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-app-bg text-app-fg antialiased;
+    font-family: "Outfit", "Segoe UI", "Inter", system-ui, -apple-system,
+      "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 14px;
+  }
+
+  /* Custom scrollbar - light minimal */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* ===== 页面背景（浅蓝灰工作台） ===== */
+  .wb-bg {
+    @apply bg-app-bg;
+  }
+
+  /* ===== 卡片 ===== */
+  .wb-card {
+    @apply bg-app-surface border border-app-border rounded-2xl p-5 md:p-6;
+    box-shadow: 0 1px 3px rgba(23, 23, 23, 0.04), 0 4px 16px rgba(23, 23, 23, 0.03);
+  }
+
+  .wb-card-hover {
+    @apply transition duration-200 ease-out hover:border-blue-200 hover:shadow-md;
+  }
+
+  /* ===== 按钮 ===== */
+  .wb-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-app-borderStrong bg-white px-4 py-2 text-sm font-medium text-app-fg transition-all duration-200 ease-out hover:bg-app-chrome hover:-translate-y-px hover:shadow-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .wb-btn-primary {
+    @apply border-transparent bg-blue-600 text-white hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg;
+    box-shadow: 0 2px 8px rgba(75, 63, 227, 0.28);
+  }
+
+  .wb-btn-ghost {
+    @apply border-transparent bg-transparent hover:bg-app-chrome hover:border-transparent;
+  }
+
+  /* ===== 输入框 / 文本域 ===== */
+  .wb-input {
+    @apply w-full rounded-xl border border-app-borderStrong bg-white px-3.5 py-2.5 text-sm text-app-fg placeholder:text-app-t4 transition duration-150 ease-in-out focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100;
+  }
+
+  textarea.wb-input {
+    @apply resize-none leading-relaxed;
+  }
+
+  /* ===== 标签 / 徽标 ===== */
+  .wb-badge {
+    @apply inline-flex items-center gap-1 rounded-full border border-app-border bg-app-chrome px-2.5 py-0.5 text-xs text-app-t3 whitespace-nowrap;
+  }
+
+  .wb-badge-blue {
+    @apply border-blue-200 bg-blue-50 text-blue-700;
+  }
+
+  .wb-badge-ok {
+    @apply border-green-200 bg-green-50 text-green-700;
+  }
+
+  /* ===== 侧边导航项 ===== */
+  .wb-nav-item {
+    @apply flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-app-t2 transition-all duration-200 ease-out hover:bg-app-chrome hover:text-blue-600 active:scale-[0.96] active:bg-blue-100/70 relative overflow-hidden;
+  }
+
+  /* 悬浮微光：靛蓝流光从左扫过（宣传页质感动效） */
+  .wb-nav-item::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(110deg, transparent 25%, rgba(75, 63, 227, 0.12) 50%, transparent 75%);
+    transform: translateX(-130%);
+    transition: transform 0.6s ease;
+    pointer-events: none;
+  }
+  .wb-nav-item:hover::after {
+    transform: translateX(130%);
+  }
+
+
+  .wb-nav-item-active {
+    @apply bg-blue-50 text-blue-700 hover:bg-blue-50 font-medium;
+    box-shadow: inset 0 0 0 1px rgba(75, 63, 227, 0.14);
+  }
+
+  /* 选中指示条：点击后靛蓝竖条弹出（宣传页质感动效） */
+  .wb-nav-item-active::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    width: 3px;
+    height: 18px;
+    border-radius: 99px;
+    background: #4B3FE3;
+    transform: translateY(-50%) scaleY(0);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .wb-nav-item-active::before {
+    transform: translateY(-50%) scaleY(1);
+  }
+
+  /* ===== 标题 / 正文 ===== */
+  .wb-title {
+    @apply font-semibold tracking-tight text-app-fg;
+    font-family: "Noto Serif SC", "Songti SC", Georgia, "Times New Roman", serif;
+  }
+
+  .wb-text {
+    @apply text-app-t3;
+  }
+
+  /* ===== 代码高亮（浅色） ===== */
+  .hljs {
+    color: #1f2328;
+    background: transparent;
+  }
+  .hljs-keyword,
+  .hljs-selector-tag,
+  .hljs-doctag {
+    color: #0550ae;
+    font-weight: 600;
+  }
+  .hljs-string,
+  .hljs-title,
+  .hljs-title.function_,
+  .hljs-name,
+  .hljs-type,
+  .hljs-attribute,
+  .hljs-selector-id {
+    color: #0a3069;
+  }
+  .hljs-number,
+  .hljs-literal,
+  .hljs-symbol,
+  .hljs-bullet {
+    color: #0550ae;
+  }
+  .hljs-comment,
+  .hljs-quote,
+  .hljs-deletion {
+    color: #6e7781;
+    font-style: italic;
+  }
+  .hljs-built_in,
+  .hljs-function,
+  .hljs-variable,
+  .hljs-template-variable {
+    color: #8250df;
+  }
+  .hljs-attr,
+  .hljs-property,
+  .hljs-params {
+    color: #1f2328;
+  }
+  .hljs-regexp,
+  .hljs-link {
+    color: #0a3069;
+  }
+  .hljs-meta,
+  .hljs-selector-attr,
+  .hljs-selector-pseudo,
+  .hljs-section {
+    color: #116329;
+  }
+  .hljs-emphasis {
+    font-style: italic;
+  }
+  .hljs-strong {
+    font-weight: 600;
+  }
+}
+/* ===== 宣传页质感：颗粒噪点 + 磁性按钮 ===== */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 999; pointer-events: none; opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.magnetic { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .magnetic { transition: none; } }
