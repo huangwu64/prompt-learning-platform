@@ -224,10 +224,10 @@ export default function LoginPage() {
           onMouseLeave={resetTilt}
           className={`w-full md:w-[420px] shrink-0 ${shake ? "animate-login-shake" : ""}`}
         >
-          <Card className="overflow-hidden shadow-[0_28px_70px_-18px_rgba(23,23,23,0.22)]">
+          <Card className="overflow-hidden bg-white/85 backdrop-blur-md shadow-[0_24px_60px_-15px_rgba(75,63,227,0.16)]">
             {/* 顶部出版色条 */}
             <div className="h-[2px] w-full bg-blue-600" />
-            <CardHeader className="text-center relative overflow-hidden bg-gradient-to-b from-blue-500/[0.07] to-transparent pt-10 pb-6">
+            <CardHeader className="text-center relative overflow-hidden bg-gradient-to-b from-blue-500/[0.09] to-transparent pt-10 pb-6">
               <span className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full border border-[#E5E6EA] bg-[#F7F8FA] px-3 py-1 text-[10px] tracking-wide text-[#3A3A3A]">
                 7 天成长计划
               </span>
