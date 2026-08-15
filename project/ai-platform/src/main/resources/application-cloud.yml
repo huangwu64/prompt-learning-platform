@@ -1,0 +1,19 @@
+# 云端数据库连接配置（方案A：公网直连）
+# 使用方式：SPRING_PROFILES_ACTIVE=cloud java -jar target/ai-platform.jar
+# 或直接运行 start-cloud.bat（Windows）
+#
+# 说明：仓库为公开仓库，密码可被他人看到；生产/正式环境请改用环境变量注入并轮换密码。
+spring:
+  datasource:
+    url: jdbc:mysql://162.251.93.7:3306/prompt_learning_platform?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: huangwu
+    password: ${DB_PASSWORD:2876479587}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+  data:
+    redis:
+      host: 162.251.93.7
+      port: 6379
+      password: ${REDIS_PASSWORD:Redis2876479587}
+      timeout: 3s
