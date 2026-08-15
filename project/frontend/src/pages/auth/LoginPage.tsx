@@ -67,8 +67,8 @@ export default function LoginPage() {
   const validate = (): boolean => {
     const fe: FieldErrors = {};
     const email = form.email.trim();
-    if (!email) fe.email = "请输入邮箱";
-    else if (!EMAIL_RE.test(email)) fe.email = "邮箱格式不合法";
+    if (!email) fe.email = "请输入账号";
+    else if (!EMAIL_RE.test(email)) fe.email = "账号格式不合法";
     if (!form.password) fe.password = "请输入密码";
     else if (form.password.length < 6) fe.password = "密码至少 6 位";
     if (!isLogin) {
@@ -226,6 +226,9 @@ export default function LoginPage() {
             {/* 纸张内高光（纸的厚度） */}
             <div aria-hidden className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(23,23,23,0.03)]" />
 
+            {/* 纸张内高光（纸的厚度） */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(23,23,23,0.03)]" />
+
             {/* 刊头（letterhead） */}
             <div className="h-[2px] w-full bg-blue-600" />
             <div className="px-8 pt-6 pb-4 text-center">
@@ -268,13 +271,13 @@ export default function LoginPage() {
                 )}
 
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="email" className="text-xs text-[#737373]">邮箱</label>
+                  <label htmlFor="email" className="text-xs text-[#737373]">账号</label>
                   <Input
                     id="email"
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="请输入邮箱"
+                    placeholder="请输入账号（邮箱）"
                     className={fieldCls(fieldErrors.email)}
                   />
                   {fieldErrors.email && (
