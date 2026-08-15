@@ -9,11 +9,23 @@ import {
   FileText,
   History,
   Sparkles,
+  Mail,
+  Presentation,
+  Share2,
 } from "lucide-react";
 import { worksService } from "@/services/worksService";
 import { useAuthStore } from "@/store/authStore";
+import { SectionTitle } from "@/components/ui/SectionTitle";
 import { mockWorks, workTemplates, WorkTemplateConfig } from "@/lib/mockData";
 import type { Work, WorkType } from "@/types";
+
+/** 模板图标映射（lucide 图标语言，替代 emoji） */
+const templateIcons: Record<WorkType, typeof Mail> = {
+  email: Mail,
+  report: FileText,
+  ppt: Presentation,
+  social: Share2,
+};
 
 /** 游客模式：模拟 AI 生成内容 */
 function demoGenerate(tpl: WorkTemplateConfig, formData: Record<string, string>): string {
@@ -123,65 +135,65 @@ export default function WorksPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 md:p-8 flex flex-col gap-6">
-      <div>
-        <h1 className="wb-title text-2xl md:text-3xl">作品工厂</h1>
-        <p className="wb-text text-sm mt-1.5">
+    <div className="w-full max-w-6xl mx-auto px-6 md:px-10 py-8 md:py-10 flex flex-col gap-6 md:gap-8">
+      <div className="wb-page-head wb-reveal">
+        <h1 className="font-display text-2xl md:text-3xl font-medium tracking-tight text-app-fg">作品工厂</h1>
+        <p className="wb-text text-sm">
           选择模板，填写关键信息，一键生成可用的内容
         </p>
       </div>
 
       {/* 模板选择区 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {workTemplates.map((t) => (
-          <button
-            key={t.type}
-            onClick={() => selectTemplate(t.type)}
-            className={`wb-card p-4 text-left wb-card-hover ${
-              selectedType === t.type ? "border-blue-500 bg-[#F0F1F4]" : ""
-            }`}
-          >
-            <span className="text-2xl">{t.emoji}</span>
-            <p className="text-sm font-medium text-[#171717] mt-2">{t.label}</p>
-            <p className="text-[11px] text-[#A0A0A8] mt-0.5 leading-snug">{t.desc}</p>
-          </button>
-        ))}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 wb-reveal">
+        {workTemplates.map((t) => {
+          const Icon = templateIcons[t.type] ?? FileText;
+          return (
+            <button
+              key={t.type}
+              onClick={() => selectTemplate(t.type)}
+              className={`wb-card p-5 text-left wb-card-hover ${
+                selectedType === t.type ? "border-blue-500 bg-app-chrome" : ""
+              }`}
+            >
+              <span className="w-10 h-10 inline-flex items-center justify-center rounded-xl border border-app-border bg-app-chrome text-blue-600">
+                <Icon className="w-5 h-5" />
+              </span>
+              <p className="text-base font-medium text-app-fg mt-3">{t.label}</p>
+              <p className="text-xs text-app-t4 mt-1 leading-snug">{t.desc}</p>
+            </button>
+          );
+        })}
       </div>
 
       {/* 表单区 */}
-      <div className="wb-card">
-        <div className="flex items-center gap-2 mb-4">
-          <FileText className="w-4 h-4 text-[#3A3A3A]" />
-          <h3 className="text-sm font-semibold text-[#171717]">
-            填写信息 · {tpl.emoji} {tpl.label}
-          </h3>
-        </div>
-        <div className="flex flex-col gap-3">
+      <div className="wb-card wb-card-hover wb-reveal">
+        <SectionTitle icon={FileText} className="mb-5">填写信息 · {tpl.label}</SectionTitle>
+        <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-[#737373]">标题</label>
+            <label className="text-sm text-app-t3">标题</label>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={tpl.titlePlaceholder}
               maxLength={100}
-              className="wb-input"
+              className="wb-input !py-3 !text-[15px]"
             />
           </div>
 
           {tpl.fields.map((field) => (
             <div key={field.key} className="flex flex-col gap-1.5">
-              <label className="text-xs text-[#737373]">{field.label}</label>
+              <label className="text-sm text-app-t3">{field.label}</label>
               {field.type === "select" ? (
                 <select
                   value={formData[field.key] ?? ""}
                   onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
-                  className="wb-input"
+                  className="wb-input !py-3 !text-[15px]"
                 >
-                  <option value="" disabled className="bg-white">
+                  <option value="" disabled className="bg-app-surface">
                     请选择
                   </option>
                   {field.options?.map((opt) => (
-                    <option key={opt} value={opt} className="bg-white">
+                    <option key={opt} value={opt} className="bg-app-surface">
                       {opt}
                     </option>
                   ))}
@@ -191,8 +203,8 @@ export default function WorksPage() {
                   value={formData[field.key] ?? ""}
                   onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
                   placeholder={field.placeholder}
-                  rows={field.type === "textarea" ? 3 : 1}
-                  className="wb-input"
+                  rows={field.type === "textarea" ? 4 : 1}
+                  className="wb-input !py-3 !text-[15px]"
                 />
               )}
             </div>
@@ -201,13 +213,13 @@ export default function WorksPage() {
           <button
             onClick={handleGenerate}
             disabled={!canGenerate || generating}
-            className="wb-btn wb-btn-primary mt-1"
+            className="wb-btn wb-btn-primary mt-2 !px-7 !py-2.5 !text-[15px]"
           >
             {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
             {generating ? "AI 生成中…" : "生成内容"}
           </button>
           {!canGenerate && (
-            <p className="text-[11px] text-[#A0A0A8] text-center">
+            <p className="text-xs text-app-t4 text-center">
               请填写标题和全部字段后生成
             </p>
           )}
@@ -216,25 +228,22 @@ export default function WorksPage() {
 
       {/* 结果区 */}
       {result && (
-        <div className="wb-card">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-[#3A3A3A]" />
-            <h3 className="text-sm font-semibold text-[#171717]">生成结果 · {result.title}</h3>
-          </div>
-          <div className="bg-white border-[#E5E6EA] rounded-xl p-4 text-sm text-[#3A3A3A] leading-relaxed max-h-96 overflow-y-auto">
+        <div className="wb-card wb-reveal">
+          <SectionTitle icon={Sparkles} className="mb-4">生成结果 · {result.title}</SectionTitle>
+          <div className="bg-app-surface border-app-border rounded-xl p-5 text-[15px] text-app-t2 leading-relaxed max-h-[480px] overflow-y-auto">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{result.content}</ReactMarkdown>
           </div>
-          <div className="flex items-center gap-2 mt-3">
-            <button onClick={handleCopy} className="wb-btn !text-xs !px-3 !py-1.5">
-              {copied ? <Check className="w-3.5 h-3.5 text-[#3A3A3A]" /> : <Copy className="w-3.5 h-3.5" />}
+          <div className="flex items-center gap-3 mt-4">
+            <button onClick={handleCopy} className="wb-btn !text-sm !px-4 !py-2">
+              {copied ? <Check className="w-4 h-4 text-app-t2" /> : <Copy className="w-4 h-4" />}
               {copied ? "已复制" : "复制"}
             </button>
             <button
               onClick={handleGenerate}
               disabled={generating}
-              className="wb-btn wb-btn-primary !text-xs !px-3 !py-1.5"
+              className="wb-btn wb-btn-primary !text-sm !px-4 !py-2"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${generating ? "animate-spin" : ""}`} />
+              <RefreshCw className={`w-4 h-4 ${generating ? "animate-spin" : ""}`} />
               重新生成
             </button>
           </div>
@@ -242,19 +251,19 @@ export default function WorksPage() {
       )}
 
       {/* 历史作品 */}
-      <div className="wb-card">
+      <div className="wb-card wb-card-hover wb-reveal">
         <button
           onClick={() => setHistoryOpen(!historyOpen)}
-          className="w-full flex items-center gap-2 mb-3"
+          className="w-full text-left"
         >
-          <History className="w-4 h-4 text-[#3A3A3A]" />
-          <h3 className="text-sm font-semibold text-[#171717]">历史作品</h3>
-          <span className="ml-auto text-xs text-[#A0A0A8]">{works.length} 个</span>
+          <SectionTitle icon={History} className="mb-3" right={<span className="text-xs text-app-t4 tabular-nums">{works.length} 个</span>}>
+            历史作品
+          </SectionTitle>
         </button>
 
         {historyOpen &&
           (works.length === 0 ? (
-            <p className="text-sm text-[#A0A0A8] py-4 text-center">
+            <p className="text-sm text-app-t4 py-4 text-center">
               还没有作品，选择上方模板开始创建
             </p>
           ) : (
@@ -266,14 +275,17 @@ export default function WorksPage() {
                     setResult(work);
                     setSelectedType(work.workType);
                   }}
-                  className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white border-[#E5E6EA] hover:bg-[#F0F1F4] hover:border-[#D6D8DE] text-left transition duration-150 ease-in-out"
+                  className="flex items-center gap-3.5 px-5 py-3.5 rounded-2xl bg-app-surface border-app-border hover:bg-app-chrome hover:border-app-borderStrong text-left transition duration-150 ease-in-out"
                 >
-                  <span className="text-lg">
-                    {workTemplates.find((t) => t.type === work.workType)?.emoji ?? "📄"}
+                  <span className="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-app-border bg-app-chrome text-blue-600">
+                    {(() => {
+                      const Icon = templateIcons[work.workType] ?? FileText;
+                      return <Icon className="w-5 h-5" />;
+                    })()}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-[#3A3A3A] truncate">{work.title}</p>
-                    <p className="text-[11px] text-[#A0A0A8]">
+                    <p className="text-[15px] text-app-t2 truncate">{work.title}</p>
+                    <p className="text-xs text-app-t4">
                       {new Date(work.createdAt).toLocaleDateString("zh-CN")}
                     </p>
                   </div>

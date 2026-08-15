@@ -27,7 +27,7 @@ export default function WorkspacePage() {
       >
         {activeSection === "learning" && <LearningMapPage />}
         {activeSection === "chat" && (
-          <div className="h-[80vh] min-h-[560px]">
+          <div className="h-[calc(100vh-120px)] min-h-[640px]">
             <ChatPage />
           </div>
         )}

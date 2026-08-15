@@ -15,9 +15,9 @@ type Layer = {
 };
 
 const LAYERS: Layer[] = [
-  { depth: 0.25, count: 26, rMin: 0.8, rMax: 1.5, aMin: 0.15, aMax: 0.32, speed: 0.12, color: "75, 63, 227" },
-  { depth: 0.6,  count: 20, rMin: 1.2, rMax: 2.0, aMin: 0.2,  aMax: 0.4,  speed: 0.2,  color: "75, 63, 227" },
-  { depth: 1,    count: 12, rMin: 1.8, rMax: 2.8, aMin: 0.24, aMax: 0.45, speed: 0.32, color: "75, 63, 227" },
+  { depth: 0.25, count: 26, rMin: 0.8, rMax: 1.5, aMin: 0.15, aMax: 0.32, speed: 0.12, color: "204, 120, 92" },
+  { depth: 0.6,  count: 20, rMin: 1.2, rMax: 2.0, aMin: 0.2,  aMax: 0.4,  speed: 0.2,  color: "204, 120, 92" },
+  { depth: 1,    count: 12, rMin: 1.8, rMax: 2.8, aMin: 0.24, aMax: 0.45, speed: 0.32, color: "204, 120, 92" },
 ];
 
 type Particle = {
@@ -58,7 +58,7 @@ export function ParticleField({ className }: { className?: string }) {
             alpha: layer.aMin + Math.random() * (layer.aMax - layer.aMin),
             phase: Math.random() * Math.PI * 2,
             layer,
-            color: Math.random() < 0.15 && layer.depth === 1 ? "0, 185, 131" : layer.color,
+            color: Math.random() < 0.15 && layer.depth === 1 ? "232, 165, 90" : layer.color,
           });
         }
       }

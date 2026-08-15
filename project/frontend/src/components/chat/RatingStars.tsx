@@ -34,13 +34,13 @@ export function RatingStars({ onRate, disabled, submitting }: Props) {
           >
             <Star
               className={`w-7 h-7 ${
-                (hovered || selected) >= n ? "text-blue-600 fill-blue-600" : "text-[#D6D8DE]"
+                (hovered || selected) >= n ? "text-blue-600 fill-blue-600" : "text-app-borderStrong"
               } transition-colors duration-150`}
             />
           </button>
         ))}
       </div>
-      <p className="text-xs text-[#A0A0A8] h-4">
+      <p className="text-xs text-app-t4 h-4">
         {submitting ? "提交评分中..." : (hovered || selected) > 0 ? labels[(hovered || selected) - 1] : "点击星星为本次对话评分"}
       </p>
     </div>

@@ -19,18 +19,23 @@ const sectionMeta: Record<string, { label: string; icon: typeof Map }> = {
  */
 export function TopBar() {
   const activeSection = useUiStore((s) => s.activeSection);
+  const collapsed = useUiStore((s) => s.collapsed);
   const user = useAuthStore((s) => s.user);
 
   return (
-    <header className="h-12 shrink-0 bg-white border-b border-[#E5E6EA] px-4 flex items-center justify-between">
+    <header
+      className={`h-14 shrink-0 bg-app-surface/60 backdrop-blur-md border-b border-app-border flex items-center justify-between ${
+        collapsed ? "pl-14 pr-4 md:pr-6" : "px-4 md:px-6"
+      }`}
+    >
       <div className="flex items-center gap-2.5 min-w-0">
-        <span className="text-sm font-semibold text-[#171717] whitespace-nowrap font-display">Spark</span>
-        <span className="text-[#D6D8DE]">/</span>
+        <span className="text-sm font-semibold text-app-fg whitespace-nowrap font-display tracking-tight">Spark</span>
+        <span className="text-app-borderStrong">/</span>
         {(() => {
           const meta = sectionMeta[activeSection];
           const Icon = meta?.icon ?? Map;
           return (
-            <span className="flex items-center gap-1.5 text-sm text-[#737373] truncate">
+            <span className="flex items-center gap-1.5 text-sm text-app-t3 truncate">
               <Icon className="w-4 h-4 text-blue-600" />
               {meta?.label ?? "工作台"}
             </span>
@@ -38,8 +43,8 @@ export function TopBar() {
         })()}
       </div>
 
-      <Avatar className="w-7 h-7 shrink-0 border border-[#E5E6EA]">
-        <AvatarFallback className="bg-blue-50 text-blue-700 text-xs font-medium">
+      <Avatar className="w-7 h-7 shrink-0 border border-app-border">
+        <AvatarFallback className="bg-blue-50 text-blue-600 text-xs font-medium">
           {user?.username?.[0]?.toUpperCase() ?? "U"}
         </AvatarFallback>
       </Avatar>

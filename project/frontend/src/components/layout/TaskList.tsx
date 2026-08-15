@@ -23,9 +23,9 @@ export function TaskList() {
   const doneCount = tasks.filter((t) => t.done).length;
 
   return (
-    <div className="flex-1 min-h-0 mx-2 my-3 flex flex-col rounded-xl border border-[#E5E6EA] bg-white overflow-hidden">
+    <div className="flex-1 min-h-0 mx-2 my-3 flex flex-col rounded-xl border border-app-border bg-app-surface overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
       <div className="px-3 pt-2.5 pb-1.5 flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-[#737373]">今日任务</h3>
+        <h3 className="text-xs font-semibold text-app-t3">今日任务</h3>
         <span className="wb-badge wb-badge-blue text-[10px]">
           {doneCount}/{tasks.length}
         </span>
@@ -38,24 +38,24 @@ export function TaskList() {
             <div
               key={task.id}
               className={`flex items-center gap-2.5 px-2 py-1.5 rounded-lg transition duration-150 ease-in-out ${
-                task.done ? "opacity-60" : "hover:bg-[#F0F1F4]"
+                task.done ? "opacity-60" : "hover:bg-app-chrome"
               }`}
             >
-              <Icon className={`w-4 h-4 shrink-0 ${task.done ? "text-blue-400" : "text-[#A0A0A8]"}`} />
+              <Icon className={`w-4 h-4 shrink-0 ${task.done ? "text-blue-400" : "text-app-t4"}`} />
               <div className="min-w-0 flex-1">
                 <p
                   className={`text-xs truncate ${
-                    task.done ? "text-[#A0A0A8] line-through" : "text-[#3A3A3A]"
+                    task.done ? "text-app-t4 line-through" : "text-app-t2"
                   }`}
                 >
                   {task.label}
                 </p>
-                <p className="text-[10px] text-[#A0A0A8] truncate">{task.desc}</p>
+                <p className="text-[10px] text-app-t4 truncate">{task.desc}</p>
               </div>
               {task.done ? (
                 <Check className="w-4 h-4 text-blue-500 shrink-0" />
               ) : (
-                <Circle className="w-4 h-4 text-[#D6D8DE] shrink-0" />
+                <Circle className="w-4 h-4 text-app-borderStrong shrink-0" />
               )}
             </div>
           );

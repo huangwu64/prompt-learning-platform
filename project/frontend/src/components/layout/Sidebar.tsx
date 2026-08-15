@@ -56,7 +56,7 @@ export function Sidebar() {
       <button
         onClick={toggleSidebar}
         title="展开导航栏"
-        className="fixed left-3 top-3 z-50 w-8 h-8 rounded-md border border-[#E5E6EA] bg-white flex items-center justify-center text-[#737373] hover:text-blue-600 hover:border-blue-300 shadow-sm transition duration-150 ease-in-out"
+        className="fixed left-3 top-3 z-50 w-8 h-8 rounded-md border border-app-border bg-app-surface flex items-center justify-center text-app-t3 hover:text-blue-600 hover:border-blue-300 shadow-sm transition duration-150 ease-in-out"
       >
         <PanelLeftOpen className="w-4 h-4" />
       </button>
@@ -65,20 +65,22 @@ export function Sidebar() {
 
   /* ===== 展开态 ===== */
   return (
-    <aside className="sticky top-0 h-screen w-60 shrink-0 bg-[#F0F1F4] border-r border-[#E5E6EA] flex flex-col">
-      {/* 品牌区：刊徽 + 字标（折叠按钮独立占位，不与文字干涉） */}
-      <div className="h-[68px] px-3 border-b border-[#E5E6EA] flex items-center gap-2 shrink-0">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-[#D6D8DE] bg-white shadow-[0_1px_2px_rgba(23,23,23,0.05)]">
-          <span className="font-display text-[15px] font-bold text-[#171717] leading-none">S</span>
+    <aside className="sticky top-0 h-screen w-60 shrink-0 bg-app-chrome border-r border-app-border flex flex-col">
+      {/* 品牌区：Linear 渐变刊徽 + 字标（折叠按钮独立占位） */}
+      <div className="h-[68px] px-3 border-b border-app-border flex items-center gap-2.5 shrink-0">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-white shadow-[0_4px_14px_-2px_rgba(94,106,210,0.55)]"
+          style={{ background: "linear-gradient(135deg, #4B3FE3, #6B5BFF 60%, #7A6FF0)" }}
+        >
+          <span className="font-display text-[15px] font-bold leading-none">S</span>
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-display text-[15px] font-semibold text-[#171717] leading-none tracking-tight truncate">Spark</p>
-          <p className="text-[10px] text-[#A0A0A8] mt-1 truncate tracking-wide">学习工作台</p>
+          <p className="font-display text-[15px] font-semibold text-app-fg leading-none tracking-tight truncate">Spark</p>
+          <p className="text-[10px] text-app-t4 mt-1 truncate tracking-wide">学习工作台</p>
         </div>
         <button
           onClick={toggleSidebar}
           title="折叠导航栏"
-          className="w-7 h-7 shrink-0 rounded-md flex items-center justify-center text-[#A0A0A8] hover:text-[#171717] hover:bg-[#E5E6EA]/60 transition duration-150 ease-in-out"
+          className="w-7 h-7 shrink-0 rounded-md flex items-center justify-center text-app-t4 hover:text-app-fg hover:bg-app-border/60 transition duration-150 ease-in-out"
         >
           <PanelLeftClose className="w-4 h-4" />
         </button>
@@ -88,7 +90,7 @@ export function Sidebar() {
       <nav className="px-2 py-2 flex-1 min-h-0 overflow-y-auto">
         {navGroups.map((group) => (
           <div key={group.title} className="mb-2">
-            <p className="px-3 pt-2 pb-1.5 text-[10px] font-medium tracking-[0.16em] text-[#A0A0A8]">
+            <p className="px-3 pt-2 pb-1.5 text-[10px] font-medium tracking-[0.16em] text-app-t4">
               {group.title}
             </p>
             <div className="flex flex-col gap-0.5">
@@ -104,13 +106,13 @@ export function Sidebar() {
                     {isActive && (
                       <motion.span
                         layoutId="sidebar-active-indicator"
-                        className="absolute left-1.5 top-1/2 h-[18px] w-[3px] -translate-y-1/2 rounded-full bg-blue-600"
+                        className="absolute left-1.5 top-1/2 h-[18px] w-[3px] -translate-y-1/2 rounded-full bg-blue-500"
                         transition={{ type: "spring", stiffness: 420, damping: 32 }}
                       />
                     )}
                     <Icon
                       className={`w-4 h-4 shrink-0 transition-all duration-200 ease-out ${
-                        isActive ? "text-blue-700" : "text-[#737373] group-hover:text-blue-700 group-hover:translate-x-[2px]"
+                        isActive ? "text-blue-600" : "text-app-t3 group-hover:text-blue-600 group-hover:translate-x-[2px]"
                       }`}
                     />
                     {item.label}
@@ -126,27 +128,27 @@ export function Sidebar() {
       <TaskList />
 
       {/* 底部：用户卡 + 退出 + 版本号 */}
-      <div className="px-2 pb-2 pt-1 mt-auto border-t border-[#E5E6EA]">
-        <div className="flex items-center gap-2.5 rounded-xl border border-[#E5E6EA] bg-white px-2.5 py-2 mb-1.5">
+      <div className="px-2 pb-2 pt-1 mt-auto border-t border-app-border">
+        <div className="flex items-center gap-2.5 rounded-xl border border-app-border bg-app-surface px-2.5 py-2 mb-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
           <Avatar className="w-8 h-8 shrink-0">
-            <AvatarFallback className="bg-blue-50 text-blue-700 font-medium">
+            <AvatarFallback className="bg-blue-50 text-blue-600 font-medium">
               {user?.username?.[0]?.toUpperCase() ?? "U"}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] text-[#171717] truncate">{user?.username ?? "学习者"}</p>
-            <p className="text-[11px] text-[#A0A0A8] truncate">连续 {user?.streakDays ?? 0} 天</p>
+            <p className="text-[13px] text-app-fg truncate">{user?.username ?? "学习者"}</p>
+            <p className="text-[11px] text-app-t4 truncate">连续 {user?.streakDays ?? 0} 天</p>
           </div>
         </div>
 
         <button
           onClick={logout}
-          className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-[#737373] hover:bg-white hover:border-[#E5E6EA] hover:border transition duration-150 ease-in-out"
+          className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-app-t3 hover:bg-app-surface hover:border-app-border hover:border transition duration-150 ease-in-out"
         >
           <LogOut className="w-4 h-4" />
           退出登录
         </button>
-        <p className="pb-0.5 pt-1 text-center text-[10px] tracking-wide text-[#C9CBD1]">Spark v2.0</p>
+        <p className="pb-0.5 pt-1 text-center text-[10px] tracking-wide text-app-t4">Spark v2.0</p>
       </div>
     </aside>
   );

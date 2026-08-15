@@ -21,10 +21,10 @@ export function ResultView({ conversation, rated, submitting, onRate }: Props) {
       {/* 优化后的提示词 */}
       <div className="wb-card rounded-2xl">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-4 h-4 text-[#3A3A3A]" />
-          <h3 className="text-sm font-semibold text-[#171717]">优化后的提示词</h3>
+          <Sparkles className="w-4 h-4 text-blue-600" />
+          <h3 className="text-sm font-semibold text-app-fg">优化后的提示词</h3>
         </div>
-        <div className="bg-white border border-[#E5E6EA] rounded-xl p-4 text-sm text-[#3A3A3A] leading-relaxed whitespace-pre-wrap">
+        <div className="bg-app-surface border border-app-border rounded-xl p-4 text-sm text-app-t2 leading-relaxed whitespace-pre-wrap">
           {improvedPrompt ?? "暂无优化结果"}
         </div>
       </div>
@@ -32,28 +32,28 @@ export function ResultView({ conversation, rated, submitting, onRate }: Props) {
       {/* 改进点对比 */}
       <div className="wb-card rounded-2xl">
         <div className="flex items-center gap-2 mb-3">
-          <ArrowRight className="w-4 h-4 text-[#3A3A3A]" />
-          <h3 className="text-sm font-semibold text-[#171717]">AI 做了什么改进</h3>
+          <ArrowRight className="w-4 h-4 text-blue-600" />
+          <h3 className="text-sm font-semibold text-app-fg">AI 做了什么改进</h3>
         </div>
         {improvements.length > 0 ? (
           <ul className="flex flex-col gap-2">
             {improvements.map((item, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-sm text-[#3A3A3A]">
-                <CheckCircle2 className="w-4 h-4 text-[#737373] shrink-0 mt-0.5" />
+              <li key={i} className="flex items-start gap-2.5 text-sm text-app-t2">
+                <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                 <span>{item}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-[#A0A0A8]">暂无改进分析</p>
+          <p className="text-sm text-app-t4">暂无改进分析</p>
         )}
       </div>
 
       {/* 评分 */}
       <div className="wb-card rounded-2xl flex flex-col items-center py-5">
-        <h3 className="text-sm font-semibold text-[#171717] mb-3">评价本次学习体验</h3>
+        <h3 className="text-sm font-semibold text-app-fg mb-3">评价本次学习体验</h3>
         {rated ? (
-          <p className="text-sm text-[#3A3A3A]">已评分，感谢反馈！评分已同步到学习地图</p>
+          <p className="text-sm text-app-t2">已评分，感谢反馈！评分已同步到学习地图</p>
         ) : (
           <RatingStars onRate={onRate} disabled={submitting} submitting={submitting} />
         )}

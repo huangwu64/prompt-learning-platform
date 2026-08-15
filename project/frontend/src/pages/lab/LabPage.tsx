@@ -1,9 +1,10 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { FlaskConical, Loader2, Play, History, Check } from "lucide-react";
+import { FlaskConical, Loader2, Play, Check, SlidersHorizontal } from "lucide-react";
 import { labService } from "@/services/labService";
 import { useAuthStore } from "@/store/authStore";
+import { SectionTitle } from "@/components/ui/SectionTitle";
 import { mockLabModels } from "@/lib/mockData";
 import type { LabCompareResultItem } from "@/types";
 
@@ -78,34 +79,31 @@ export default function LabPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 md:p-8 flex flex-col gap-6">
-      <div>
-        <h1 className="wb-title text-2xl md:text-3xl">提示词实验室</h1>
-        <p className="wb-text text-sm mt-1.5">
+    <div className="w-full max-w-6xl mx-auto px-6 md:px-10 py-8 md:py-10 flex flex-col gap-6 md:gap-8">
+      <div className="wb-page-head wb-reveal">
+        <h1 className="font-display text-2xl md:text-3xl font-medium tracking-tight text-app-fg">提示词实验室</h1>
+        <p className="wb-text text-sm">
           沙盒环境：对比不同模型、不同参数下的输出效果
         </p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 wb-reveal">
         {/* 左侧：提示词输入 */}
-        <div className="flex-1 wb-card">
-          <div className="flex items-center gap-2 mb-3">
-            <FlaskConical className="w-4 h-4 text-[#3A3A3A]" />
-            <h3 className="text-sm font-semibold text-[#171717]">输入要测试的提示词</h3>
-          </div>
+        <div className="flex-1 wb-card wb-card-hover">
+          <SectionTitle icon={FlaskConical} className="mb-4">输入要测试的提示词</SectionTitle>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            rows={9}
+            rows={12}
             placeholder="输入提示词，例如：用三句话解释什么是提示词工程…"
-            className="wb-input"
+            className="wb-input !px-5 !py-4 !text-[15px]"
           />
-          <div className="flex items-center justify-between mt-3">
-            <span className="text-xs text-[#A0A0A8]">{prompt.length} / 4000</span>
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-xs text-app-t4 tabular-nums">{prompt.length} / 4000</span>
             <button
               onClick={handleRun}
               disabled={!canRun}
-              className="wb-btn wb-btn-primary"
+              className="wb-btn wb-btn-primary !px-6 !py-2.5"
             >
               {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
               {running ? "运行中…" : "运行实验"}
@@ -114,15 +112,12 @@ export default function LabPage() {
         </div>
 
         {/* 右侧：控制面板 */}
-        <div className="w-full lg:w-64 shrink-0 wb-card">
-          <div className="flex items-center gap-2 mb-4">
-            <History className="w-4 h-4 text-[#3A3A3A]" />
-            <h3 className="text-sm font-semibold text-[#171717]">控制面板</h3>
-          </div>
+        <div className="w-full lg:w-72 shrink-0 wb-card wb-card-hover">
+          <SectionTitle icon={SlidersHorizontal} className="mb-4">控制面板</SectionTitle>
 
           {/* 模型选择 */}
           <div className="mb-5">
-            <p className="text-xs text-[#737373] mb-2">模型选择（至少 1 个）</p>
+            <p className="text-xs text-app-t3 mb-2">模型选择（至少 1 个）</p>
             <div className="flex flex-col gap-2">
               {mockLabModels.map((m) => (
                 <button
@@ -130,13 +125,13 @@ export default function LabPage() {
                   onClick={() => toggleModel(m.id)}
                   className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm border transition-all duration-150 ease-in-out ${
                     selected.includes(m.id)
-                      ? "bg-blue-600 border-blue-600 text-white"
-                      : "bg-white border-[#E5E6EA] text-[#737373] hover:bg-[#F0F1F4]"
+                      ? "bg-blue-500 border-blue-600 text-white"
+                      : "bg-app-surface border-app-border text-app-t3 hover:bg-app-chrome"
                   }`}
                 >
                   <span
                     className={`w-4 h-4 rounded-md border flex items-center justify-center ${
-                      selected.includes(m.id) ? "bg-blue-600 border-blue-600" : "border-[#D6D8DE]"
+                      selected.includes(m.id) ? "bg-blue-500 border-blue-600" : "border-app-borderStrong"
                     }`}
                   >
                     {selected.includes(m.id) && <Check className="w-3 h-3 text-white" />}
@@ -150,8 +145,8 @@ export default function LabPage() {
           {/* 温度滑块 */}
           <div className="mb-5">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-[#737373]">Temperature</p>
-              <span className="text-xs text-[#3A3A3A] font-medium">{temperature.toFixed(1)}</span>
+              <p className="text-xs text-app-t3">Temperature</p>
+              <span className="text-xs text-app-t2 font-medium tabular-nums">{temperature.toFixed(1)}</span>
             </div>
             <input
               type="range"
@@ -162,7 +157,7 @@ export default function LabPage() {
               onChange={(e) => setTemperature(Number(e.target.value))}
               className="w-full accent-[#4B3FE3]"
             />
-            <div className="flex justify-between text-[10px] text-[#A0A0A8] mt-1">
+            <div className="flex justify-between text-[10px] text-app-t4 mt-1">
               <span>稳定</span>
               <span>创造</span>
             </div>
@@ -171,8 +166,8 @@ export default function LabPage() {
           {/* Max Tokens 滑块 */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-[#737373]">Max Tokens</p>
-              <span className="text-xs text-[#3A3A3A] font-medium">{maxTokens}</span>
+              <p className="text-xs text-app-t3">Max Tokens</p>
+              <span className="text-xs text-app-t2 font-medium tabular-nums">{maxTokens}</span>
             </div>
             <input
               type="range"
@@ -183,7 +178,7 @@ export default function LabPage() {
               onChange={(e) => setMaxTokens(Number(e.target.value))}
               className="w-full accent-[#4B3FE3]"
             />
-            <div className="flex justify-between text-[10px] text-[#A0A0A8] mt-1">
+            <div className="flex justify-between text-[10px] text-app-t4 mt-1">
               <span>256</span>
               <span>8192</span>
             </div>
@@ -195,13 +190,13 @@ export default function LabPage() {
       {results && results.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {results.map((item) => (
-            <div key={item.model} className="wb-card">
+            <div key={item.model} className="wb-card wb-reveal">
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                <h3 className="text-sm font-semibold text-[#171717]">
+                <h3 className="text-sm font-semibold text-app-fg">
                   {modelLabels[item.model] ?? item.model}
                 </h3>
-                <span className="ml-auto text-[10px] text-[#A0A0A8]">
+                <span className="ml-auto text-[10px] text-app-t4 tabular-nums">
                   {item.duration ? `${item.duration}s` : ""}
                   {item.usage ? ` · ${item.usage.totalTokens} tokens` : ""}
                 </span>
@@ -211,7 +206,7 @@ export default function LabPage() {
                   此模型暂时不可用{item.error ? `：${item.error}` : ""}
                 </p>
               ) : (
-                <div className="bg-white border-[#E5E6EA] rounded-xl p-4 text-sm text-[#3A3A3A] leading-relaxed max-h-72 overflow-y-auto">
+                <div className="bg-app-surface border-app-border rounded-xl p-4 text-sm text-app-t2 leading-relaxed max-h-72 overflow-y-auto">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{item.result ?? ""}</ReactMarkdown>
                 </div>
               )}
@@ -223,8 +218,8 @@ export default function LabPage() {
       {error && <p className="text-xs text-red-600 text-center">{error}</p>}
 
       {running && (
-        <div className="wb-card flex items-center justify-center gap-3 py-10 text-sm text-[#737373]">
-          <Loader2 className="w-5 h-5 animate-spin text-[#3A3A3A]" />
+        <div className="wb-card flex items-center justify-center gap-3 py-10 text-sm text-app-t3">
+          <Loader2 className="w-5 h-5 animate-spin text-app-t2" />
           各模型正在生成回复…
         </div>
       )}

@@ -171,30 +171,30 @@ export default function LoginPage() {
           <motion.p variants={itemVar} className="text-xs font-medium tracking-[0.18em] text-blue-600">
             SPARK · 零基础学AI
           </motion.p>
-          <motion.h1 variants={itemVar} className="wb-title text-4xl xl:text-5xl leading-[1.15] mt-5 text-[#171717]">
+          <motion.h1 variants={itemVar} className="wb-title text-4xl xl:text-5xl leading-[1.15] mt-5 text-app-fg">
             把模糊的需求，
             <br />
             问成一句话。
           </motion.h1>
-          <motion.p variants={itemVar} className="mt-5 max-w-md text-sm leading-relaxed text-[#737373]">
+          <motion.p variants={itemVar} className="mt-5 max-w-md text-sm leading-relaxed text-app-t3">
             不需要懂术语。从一句"帮我写个邮件"开始，在对话里学会角色、任务、格式、约束——让 AI 真正听懂你。
           </motion.p>
 
           <motion.div variants={itemVar} className="mt-9 flex flex-col gap-4">
             {valuePoints.map((v) => (
               <div key={v.title} className="flex items-start gap-3.5">
-                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#E5E6EA] bg-white/80">
+                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-app-border bg-app-surface/80">
                   <v.icon className="h-4 w-4 text-blue-600" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-[#171717]">{v.title}</p>
-                  <p className="text-xs text-[#A0A0A8] mt-0.5">{v.desc}</p>
+                  <p className="text-sm font-semibold text-app-fg">{v.title}</p>
+                  <p className="text-xs text-app-t4 mt-0.5">{v.desc}</p>
                 </div>
               </div>
             ))}
           </motion.div>
 
-          <motion.div variants={itemVar} className="mt-10 flex items-center gap-6 text-xs text-[#737373]">
+          <motion.div variants={itemVar} className="mt-10 flex items-center gap-6 text-xs text-app-t3">
             <span className="flex items-center gap-1.5">
               <Star className="h-3.5 w-3.5 fill-blue-500 text-blue-500" />
               平均评分 4.2 / 5
@@ -215,7 +215,7 @@ export default function LoginPage() {
             style={{ rotateX: srx, rotateY: sry, transformPerspective: 1200 }}
             onMouseMove={handleTilt}
             onMouseLeave={resetTilt}
-            className={`relative overflow-hidden rounded-[20px] border border-[#E8E5DF] bg-[#FDFCFA] shadow-[0_20px_45px_-15px_rgba(75,63,227,0.14),0_3px_12px_rgba(23,23,23,0.05)] ${shake ? "animate-login-shake" : ""}`}
+            className={`relative overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-[0_20px_45px_-15px_rgba(65,118,230,0.14),0_3px_12px_rgba(0,0,0,0.3)] ${shake ? "animate-login-shake" : ""}`}
           >
             {/* 纸张噪点纹理（极淡，纸的质感） */}
             <div
@@ -224,16 +224,16 @@ export default function LoginPage() {
               style={{ backgroundImage: PAPER_NOISE }}
             />
             {/* 纸张内高光（纸的厚度） */}
-            <div aria-hidden className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(23,23,23,0.03)]" />
+            <div aria-hidden className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(0,0,0,0.3)]" />
 
             {/* 纸张内高光（纸的厚度） */}
-            <div aria-hidden className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(23,23,23,0.03)]" />
+            <div aria-hidden className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(0,0,0,0.3)]" />
 
             {/* 刊头（letterhead） */}
-            <div className="h-[2px] w-full bg-blue-600" />
+            <div className="h-[2px] w-full bg-blue-500" />
             <div className="px-8 pt-6 pb-4 text-center">
-              <p className="text-[10px] font-medium tracking-[0.24em] text-[#A0A0A8]">SPARK · 零基础学AI</p>
-              <div className="mx-auto mt-3 h-px w-14 bg-[#E5E2DA]" />
+              <p className="text-[10px] font-medium tracking-[0.24em] text-app-t4">SPARK · 零基础学AI</p>
+              <div className="mx-auto mt-3 h-px w-14 bg-app-border" />
             </div>
 
             {/* 正文区 */}
@@ -241,20 +241,20 @@ export default function LoginPage() {
               <div className="text-center">
                 <div
                   className="mx-auto mb-4 w-10 h-[3px] rounded-full transition-colors duration-300"
-                  style={{ backgroundColor: success ? "#00B983" : "#4B3FE3" }}
+                  style={{ backgroundColor: success ? "#009A6F" : "#4B3FE3" }}
                 />
-                <h2 className="wb-title font-display text-3xl tracking-tight text-[#171717]">Spark</h2>
-                <p className="text-[11px] text-[#A0A0A8] mt-2 tracking-[0.08em]">{TAGLINE}</p>
-                <p className="mt-3 text-sm text-[#737373]">
+                <h2 className="wb-title font-display text-3xl tracking-tight text-app-fg">Spark</h2>
+                <p className="text-[11px] text-app-t4 mt-2 tracking-[0.08em]">{TAGLINE}</p>
+                <p className="mt-3 text-sm text-app-t3">
                   {isLogin ? "欢迎回来，继续你的学习之旅" : "创建账号，开启 7 天学习计划"}
                 </p>
               </div>
 
-              <p className="mb-1 mt-6 text-[11px] font-medium tracking-[0.14em] text-[#A0A0A8]">账号信息</p>
+              <p className="mb-1 mt-6 text-[11px] font-medium tracking-[0.14em] text-app-t4">账号信息</p>
               <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
                 {!isLogin && (
                   <div className="flex flex-col gap-1.5">
-                    <label htmlFor="username" className="text-xs text-[#737373]">用户名</label>
+                    <label htmlFor="username" className="text-xs text-app-t3">用户名</label>
                     <Input
                       id="username"
                       value={form.username}
@@ -271,7 +271,7 @@ export default function LoginPage() {
                 )}
 
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="email" className="text-xs text-[#737373]">账号</label>
+                  <label htmlFor="email" className="text-xs text-app-t3">账号</label>
                   <Input
                     id="email"
                     type="email"
@@ -288,7 +288,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="password" className="text-xs text-[#737373]">密码</label>
+                  <label htmlFor="password" className="text-xs text-app-t3">密码</label>
                   <Input
                     id="password"
                     type="password"
@@ -322,27 +322,27 @@ export default function LoginPage() {
                     setError("");
                     setFieldErrors({});
                   }}
-                  className="text-sm text-[#737373] hover:text-[#3A3A3A] transition duration-150 ease-in-out"
+                  className="text-sm text-app-t3 hover:text-app-t2 transition duration-150 ease-in-out"
                 >
                   {isLogin ? "还没有账号？去注册" : "已有账号？去登录"}
                 </button>
 
                 <div className="flex items-center gap-3">
                   <div className="h-px flex-1 bg-[#E9E6E0]" />
-                  <span className="text-[10px] text-[#A0A0A8] uppercase tracking-wider">或</span>
+                  <span className="text-[10px] text-app-t4 uppercase tracking-wider">或</span>
                   <div className="h-px flex-1 bg-[#E9E6E0]" />
                 </div>
 
-                <button type="button" onClick={handleDemoLogin} className="wb-btn magnetic !bg-blue-50 !border-blue-100 !text-blue-700 hover:!bg-blue-100">
+                <button type="button" onClick={handleDemoLogin} className="wb-btn magnetic !bg-blue-50 !border-blue-100 !text-blue-600 hover:!bg-blue-100">
                   以游客身份体验（免登录预览）
                 </button>
 
-                <div className="flex items-center gap-2 rounded-xl border border-[#E9E6E0] bg-[#F6F4EF] px-3 py-2.5 text-[11px] text-[#737373]">
-                  <span className="font-medium text-[#3A3A3A]">测试账号</span>
+                <div className="flex items-center gap-2 rounded-xl border border-app-border bg-app-chrome px-3 py-2.5 text-[11px] text-app-t3">
+                  <span className="font-medium text-app-t2">测试账号</span>
                   test@example.com / 123456
                 </div>
 
-                <p className="text-center text-[10px] text-[#A0A0A8]">免费注册 · 无需绑定支付</p>
+                <p className="text-center text-[10px] text-app-t4">免费注册 · 无需绑定支付</p>
               </form>
             </div>
           </motion.div>
