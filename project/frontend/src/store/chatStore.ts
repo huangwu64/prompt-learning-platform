@@ -13,6 +13,8 @@ interface ChatState {
   sendMessage: (content: string) => Promise<void>;
   completeChat: () => Promise<void>;
   rateChat: (rating: number) => Promise<void>;
+  /** 载入一条历史对话的完整内容（气泡 + 结果） GET /api/chat/:id */
+  loadHistory: (id: string) => Promise<void>;
   reset: () => void;
 }
 
@@ -255,6 +257,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set({ rated: true });
     } catch (err) {
       set({ error: err instanceof Error ? err.message : "评分失败" });
+      throw err;
+    }
+  },
+
+  /** 载入历史对话：整段回看（气泡流 + 完成后的结果面板） */
+  loadHistory: async (id) => {
+    set({ sending: false, error: null });
+    try {
+      const data = await chatService.getDetail(id);
+      set({
+        conversation: data.conversation,
+        messages: data.messages,
+        rated: data.conversation.rating != null,
+        sending: false,
+        error: null,
+      });
+    } catch (err) {
+      set({ sending: false, error: err instanceof Error ? err.message : "载入历史对话失败" });
       throw err;
     }
   },

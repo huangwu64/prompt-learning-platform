@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Sparkles, Send, Square } from "lucide-react";
+import { MessageSquare, Sparkles, Send, Square, History } from "lucide-react";
 import { useChatStore } from "@/store/chatStore";
 import { MessageBubble } from "@/components/chat/MessageBubble";
 import { SparkLogo } from "@/components/chat/SparkLogo";
 import { ResultView } from "@/components/chat/ResultView";
+import { HistoryDrawer } from "@/components/chat/HistoryDrawer";
+import type { ConversationHistoryItem } from "@/types";
 
 /** AI 思考指示器：三点跳动 */
 function ThinkingDots() {
@@ -36,10 +38,12 @@ export default function ChatPage() {
     sendMessage,
     completeChat,
     rateChat,
+    loadHistory,
     reset,
   } = useChatStore();
 
   const [input, setInput] = useState("");
+  const [historyOpen, setHistoryOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -82,6 +86,20 @@ export default function ChatPage() {
 
   const isCompleted = conversation?.status === "completed";
 
+  /** 从历史抽屉选择一条：载入其完整内容（气泡 + 结果） */
+  const openFromHistory = async (item: ConversationHistoryItem) => {
+    const cur = conversation;
+    if (cur && cur.status === "active" && messages.length > 2) {
+      if (!window.confirm("载入历史对话会替换当前未完成的对话，确定继续吗？")) return;
+    }
+    try {
+      await loadHistory(item.id);
+      setHistoryOpen(false);
+    } catch (e) {
+      window.alert(e instanceof Error ? e.message : "载入历史对话失败");
+    }
+  };
+
   return (
     <div className="h-full flex flex-col wb-bg min-w-0">
       {/* ===== 对话头部 ===== */}
@@ -97,6 +115,14 @@ export default function ChatPage() {
           </div>
 
           <div className="ml-auto flex items-center gap-3 shrink-0">
+            <button
+              onClick={() => setHistoryOpen(true)}
+              title="查看历史对话记录"
+              className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-app-t3 hover:text-blue-600 hover:bg-blue-50 transition duration-150 ease-in-out"
+            >
+              <History className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">历史记录</span>
+            </button>
             <span className="text-xs text-app-t4 whitespace-nowrap tabular-nums">
               追问 {Math.min(conversation.currentRound, conversation.maxRounds)} / {conversation.maxRounds} 轮
             </span>
@@ -134,6 +160,13 @@ export default function ChatPage() {
               <p className="wb-text mt-3.5 text-[15px] max-w-md mx-auto leading-relaxed">
                 描述你想要的提示词，AI 会通过最多 5 轮追问帮你把它打磨清楚
               </p>
+              <button
+                onClick={() => setHistoryOpen(true)}
+                className="mx-auto mt-3 inline-flex items-center gap-1.5 text-[13px] text-app-t3 hover:text-blue-600 transition-colors duration-150"
+              >
+                <History className="w-4 h-4" />
+                查看历史对话记录
+              </button>
             </div>
 
             <div className="w-full max-w-3xl flex flex-col gap-3.5">
@@ -240,6 +273,11 @@ export default function ChatPage() {
             </div>
           )}
         </footer>
+      )}
+
+      {/* 历史对话抽屉 */}
+      {historyOpen && (
+        <HistoryDrawer onClose={() => setHistoryOpen(false)} onSelect={openFromHistory} />
       )}
     </div>
   );
