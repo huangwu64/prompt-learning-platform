@@ -3,7 +3,6 @@ import {
   MessageSquare,
   FileText,
   Trophy,
-  FlaskConical,
   Radar,
   LogOut,
   PanelLeftClose,
@@ -33,7 +32,6 @@ const navGroups: { title: string; items: NavItem[] }[] = [
     title: "创作",
     items: [
       { id: "works", label: "作品工厂", icon: FileText },
-      { id: "lab", label: "提示词实验室", icon: FlaskConical },
     ],
   },
   {

@@ -240,50 +240,6 @@ export interface SharedWork {
 }
 
 // ========================================
-// 提示词实验室模块
-// ========================================
-
-export interface LabTestRequest {
-  prompt: string;
-  temperature?: number;
-  maxTokens?: number;
-}
-
-export interface TokenUsage {
-  promptTokens: number;
-  completionTokens: number;
-  totalTokens: number;
-}
-
-export interface LabTestResponse {
-  result: string;
-  model: string;
-  usage: TokenUsage;
-  duration: number;
-}
-
-export interface LabCompareRequest {
-  prompt: string;
-  models: string[];
-  temperature?: number;
-  maxTokens?: number;
-}
-
-export interface LabCompareResultItem {
-  model: string;
-  status: "success" | "failed";
-  result?: string;
-  error?: string;
-  usage?: TokenUsage;
-  duration: number;
-}
-
-export interface LabCompareResponse {
-  experimentId: string;
-  results: LabCompareResultItem[];
-}
-
-// ========================================
 // 智能对比模块
 // ========================================
 

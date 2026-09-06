@@ -1,4 +1,4 @@
-import { Map, MessageSquare, FileText, Trophy, FlaskConical, Radar } from "lucide-react";
+import { Map, MessageSquare, FileText, Trophy, Radar } from "lucide-react";
 import { useUiStore } from "@/store/uiStore";
 import { useAuthStore } from "@/store/authStore";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -9,7 +9,6 @@ const sectionMeta: Record<string, { label: string; icon: typeof Map }> = {
   chat: { label: "苏格拉底对话", icon: MessageSquare },
   works: { label: "作品工厂", icon: FileText },
   challenge: { label: "提示词挑战赛", icon: Trophy },
-  lab: { label: "提示词实验室", icon: FlaskConical },
   profile: { label: "能力雷达", icon: Radar },
 };
 

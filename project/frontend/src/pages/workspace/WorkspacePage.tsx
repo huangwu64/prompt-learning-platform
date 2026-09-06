@@ -4,7 +4,6 @@ import LearningMapPage from "@/pages/learning/LearningMapPage";
 import ChatPage from "@/pages/chat/ChatPage";
 import WorksPage from "@/pages/works/WorksPage";
 import ChallengePage from "@/pages/challenge/ChallengePage";
-import LabPage from "@/pages/lab/LabPage";
 import ProfilePage from "@/pages/profile/ProfilePage";
 
 /**
@@ -33,7 +32,6 @@ export default function WorkspacePage() {
         )}
         {activeSection === "works" && <WorksPage />}
         {activeSection === "challenge" && <ChallengePage />}
-        {activeSection === "lab" && <LabPage />}
         {activeSection === "profile" && <ProfilePage />}
       </motion.div>
     </AnimatePresence>

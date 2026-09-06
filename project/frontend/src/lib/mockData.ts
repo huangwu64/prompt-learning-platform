@@ -195,13 +195,6 @@ export const mockLeaderboard = {
   ],
 };
 
-// ===== 实验室 =====
-export const mockLabModels = [
-  { id: "deepseek", label: "DeepSeek" },
-  { id: "gpt-4o", label: "GPT-4o" },
-  { id: "claude-3.5", label: "Claude 3.5" },
-];
-
 // ===== 能力雷达 =====
 export const mockSkillRadar = {
   accuracy: 85,
