@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Sparkles, Send, Square, History } from "lucide-react";
+import { MessageSquare, Sparkles, Send, Square, History, Gauge } from "lucide-react";
 import { useChatStore } from "@/store/chatStore";
 import { MessageBubble } from "@/components/chat/MessageBubble";
 import { SparkLogo } from "@/components/chat/SparkLogo";
 import { ResultView } from "@/components/chat/ResultView";
 import { HistoryDrawer } from "@/components/chat/HistoryDrawer";
+import { LiveProgressPanel } from "@/components/chat/LiveProgressPanel";
 import type { ConversationHistoryItem } from "@/types";
 
 /** AI 思考指示器：三点跳动 */
@@ -44,6 +45,7 @@ export default function ChatPage() {
 
   const [input, setInput] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [showProgress, setShowProgress] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -116,6 +118,16 @@ export default function ChatPage() {
 
           <div className="ml-auto flex items-center gap-3 shrink-0">
             <button
+              onClick={() => setShowProgress((v) => !v)}
+              title="实时学习评分面板"
+              className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs transition duration-150 ease-in-out ${
+                showProgress ? "text-blue-600 bg-blue-50" : "text-app-t3 hover:text-blue-600 hover:bg-blue-50"
+              }`}
+            >
+              <Gauge className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{showProgress ? "评分中" : "实时评分"}</span>
+            </button>
+            <button
               onClick={() => setHistoryOpen(true)}
               title="查看历史对话记录"
               className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-app-t3 hover:text-blue-600 hover:bg-blue-50 transition duration-150 ease-in-out"
@@ -143,8 +155,9 @@ export default function ChatPage() {
         </header>
       )}
 
-      {/* ===== 消息区 ===== */}
-      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto">
+      {/* ===== 消息区 + 右侧实时评分 ===== */}
+      <div className="flex-1 min-h-0 flex">
+        <div ref={scrollRef} className="flex-1 min-w-0 overflow-y-auto">
         {!conversation ? (
           /* 欢迎屏 */
           <div className="h-full flex flex-col items-center justify-center px-6 gap-9 wb-reveal">
@@ -223,6 +236,15 @@ export default function ChatPage() {
               </div>
             )}
           </div>
+        )}
+        </div>
+
+        {conversation && showProgress && (
+          <LiveProgressPanel
+            conversation={conversation}
+            messages={messages}
+            onHide={() => setShowProgress(false)}
+          />
         )}
       </div>
 
