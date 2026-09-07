@@ -6,11 +6,19 @@ import { AuthGuard } from "@/components/common/AuthGuard";
 // Pages
 import LoginPage from "@/pages/auth/LoginPage";
 import WorkspacePage from "@/pages/workspace/WorkspacePage";
+import LandingPage from "@/pages/landing/LandingPage";
+
+/** 根地址 / 入口：一律先进宣传页（登录与否都由宣传页 → 登录 → 工作台走流程） */
+function RootRedirect() {
+  return <Navigate to="/landing" replace />;
+}
 
 /**
- * 单页面应用：
- * - 登录页 /login
- * - 主页面 /：左侧固定导航 + 右侧单页展示全部模块内容（滚动浏览）
+ * 单页面应用（各页独立地址）：
+ * - /landing 宣传页（公开）：输入根地址 / 自动落位于此
+ * - /login   登录/注册（公开）
+ * - /app     主工作台（受保护，未登录跳 /login）：左侧固定导航 + 模块内容区
+ * - 兜底（未知路径）→ 走根地址重定向
  */
 /**
  * Spark 工作台 — 方向契约（Linear 设计语言，established-world 精修）
@@ -55,10 +63,16 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 登录（公开） */}
+        {/* 根地址：一律进宣传页 /landing（经登录后再进工作台） */}
+        <Route path="/" element={<RootRedirect />} />
+
+        {/* 宣传页（公开） */}
+        <Route path="/landing" element={<LandingPage />} />
+
+        {/* 登录/注册（公开） */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* 主页面（受保护） */}
+        {/* 工作台（受保护，未登录自动跳 /login） */}
         <Route
           element={
             <AuthGuard>
@@ -66,11 +80,11 @@ export default function App() {
             </AuthGuard>
           }
         >
-          <Route path="/" element={<WorkspacePage />} />
+          <Route path="/app" element={<WorkspacePage />} />
         </Route>
 
-        {/* 兜底 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* 兜底：未知路径走根地址重定向 */}
+        <Route path="*" element={<RootRedirect />} />
       </Routes>
     </BrowserRouter>
   );

@@ -105,7 +105,7 @@ export default function LoginPage() {
       login(data.token, data.user);
       setSuccess(true);
       await delay(reduceMotion ? 0 : 480);
-      navigate("/");
+      navigate("/app");
     } catch (err) {
       setError(err instanceof Error ? err.message : "操作失败");
       triggerShake();
@@ -122,7 +122,7 @@ export default function LoginPage() {
       streakDays: 3,
       createdAt: "2026-01-01T00:00:00.000Z",
     });
-    navigate("/");
+    navigate("/app");
   };
 
   const handleTilt = (e: React.MouseEvent<HTMLDivElement>) => {
