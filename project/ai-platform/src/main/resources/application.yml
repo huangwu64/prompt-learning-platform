@@ -27,6 +27,22 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
+  # 数据库迁移：V1 为基线（内容 = db/init.sql），新增变更一律加 V2+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true          # 已有库无 history 表时打基线
+    baseline-version: 0
+    baseline-description: "legacy init.sql schema"
+    out-of-order: false
+    clean-disabled: true               # 生产禁用 clean
+  servlet:
+    multipart:
+      max-file-size: 2MB               # 头像上限，代码内二次校验
+      max-request-size: 4MB
+  mvc:
+    async:
+      request-timeout: 180000          # SSE 长连接兜底（ms）
 
 mybatis-plus:
   configuration:
@@ -48,25 +64,39 @@ ai:
     api-key: ${DEEPSEEK_API_KEY:}
     model: ${DEEPSEEK_MODEL:deepseek-chat}
     timeout-seconds: 30
+    stream-timeout-seconds: 120
     max-tokens: 2048
   daily-limit: ${AI_DAILY_LIMIT:50}
+  # 助手独立配额，不与苏格拉底抢 daily-limit
+  assistant-daily-limit: ${AI_ASSISTANT_DAILY_LIMIT:100}
+  # 配置加密密钥（AES-256-GCM），缺失时回落 jwt.secret 派生
+  config-secret: ${AI_CONFIG_SECRET:}
 
 # 限流
 ratelimit:
   ip-limit: ${IP_RATE_LIMIT:60}
   ip-window-seconds: 60
 
+# 文件上传（头像）
+app:
+  upload:
+    # 生产必须挂 Docker volume，否则重建容器丢文件
+    dir: ${UPLOAD_DIR:./uploads}
+    # 对外访问前缀，与 WebMvcConfig 的资源映射保持一致
+    url-prefix: /uploads
+
 # API 文档
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
-# 监控
+# 监控：prometheus 端点已移除（项目内无 Prometheus 服务在抓取），
+# 后台监控改为直读 MeterRegistry + /api/admin/monitor/*
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics
 
 # AI 熔断/重试
 resilience4j:

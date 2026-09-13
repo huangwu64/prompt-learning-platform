@@ -13,6 +13,9 @@ target/
 logs/
 *.log
 
+# 用户上传的文件（头像等）—— 运行时产物，生产由 Docker volume 持久化
+uploads/
+
 .env
 application-local.yml
 

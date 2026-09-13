@@ -1,16 +1,14 @@
 -- ============================================================
--- 零基础学AI平台 数据库初始化脚本（MySQL 8.0）
--- 说明：docker-compose 首次启动自动执行；本地手动执行：mysql -uroot -p < db/init.sql
+-- V1 基线：为零基础学AI平台建立全部基础表
 --
--- ⚠️ 本文件只负责「建出基线表」。它等价于 Flyway 的 V1__baseline_schema.sql，
---    且仅在容器**首次**启动时执行一次，对已有库完全无效。
---    所有后续结构变更（加列/加表/改类型）一律写到
---        src/main/resources/db/migration/V2__xxx.sql
---    两份文件必须保持同步，否则全新库与已有库的结构会分叉。
+-- 内容与 db/init.sql 等价（去掉 CREATE DATABASE / USE，避免在既存连接上切库
+-- 导致后续语句与 flyway_schema_history 落到不同库）。
+-- 全部使用 CREATE TABLE IF NOT EXISTS，天然幂等：
+--   · 全新库  → 本文件真实建表
+--   · 已有库  → Flyway 以 baseline-version: 0 打基线，本文件仍会执行但全为空操作
+--
+-- ⚠️ 本文件一旦在某环境执行过就不要再改。所有后续变更一律新增 V2、V3……
 -- ============================================================
-CREATE DATABASE IF NOT EXISTS prompt_learning_platform
-  DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE prompt_learning_platform;
 
 -- 用户表
 CREATE TABLE IF NOT EXISTS users (

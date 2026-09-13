@@ -27,6 +27,10 @@ application-local.yml
 logs/
 *.log
 
+# ===== 用户上传的文件（头像等）=====
+# 运行时产物，不进仓库；生产环境由 Docker volume 持久化
+uploads/
+
 # ===== 系统文件 =====
 .DS_Store
 Thumbs.db
