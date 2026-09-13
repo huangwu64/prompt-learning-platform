@@ -14,11 +14,17 @@ import java.time.LocalDateTime;
 public class ConversationVO {
 
     private String id;
+    /** socratic / assistant */
+    private String conversationType;
+    private String title;
     private String originalPrompt;
     private String improvedPrompt;
     /** 改进分析（JSON 对象，null 表示尚未完成） */
     private JsonNode comparisonResult;
+    /** 用户满意度星级 1-5（仅体验反馈） */
     private Integer rating;
+    /** 系统综合评分 0-100（完整度 70% + 轮数 30%），完成对话时算出 */
+    private Integer score;
     private String status;
     private Integer currentRound;
     private Integer maxRounds;
@@ -28,9 +34,12 @@ public class ConversationVO {
     public static ConversationVO from(Conversation c, ObjectMapper om) {
         ConversationVO vo = new ConversationVO();
         vo.setId(c.getId());
+        vo.setConversationType(c.getConversationType());
+        vo.setTitle(c.getTitle());
         vo.setOriginalPrompt(c.getOriginalPrompt());
         vo.setImprovedPrompt(c.getImprovedPrompt());
         vo.setRating(c.getRating());
+        vo.setScore(c.getScore());
         vo.setStatus(c.getStatus());
         vo.setCurrentRound(c.getCurrentRound());
         vo.setMaxRounds(c.getMaxRounds());

@@ -13,13 +13,17 @@ import com.aiplatform.modules.learning.vo.LearningProgressVO;
 import com.aiplatform.modules.learning.vo.StageVO;
 import com.aiplatform.modules.learning.vo.UpdateProgressVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -37,10 +41,14 @@ public class LearningService {
     private static final String STATUS_LEARNING = "learning";
     private static final String STATUS_MASTERED = "mastered";
 
+    /** 能力雷达取最近多少次对话做平均：越新越能代表当前水平 */
+    private static final int RADAR_SAMPLE_SIZE = 20;
+
     private final KnowledgePointMapper kpMapper;
     private final UserKnowledgeProgressMapper progressMapper;
     private final LearningStatsMapper statsMapper;
     private final BadgeService badgeService;
+    private final ObjectMapper objectMapper;
 
     /** 启动时初始化知识点配置表（空表才插入） */
     @PostConstruct
@@ -57,10 +65,12 @@ public class LearningService {
 
         // stats
         LearningProgressVO.Stats stats = new LearningProgressVO.Stats();
-        stats.setAverageRating(statsMapper.avgRating(userId));
+        // 平均分取**系统综合评分**，不是用户满意度星级
+        stats.setAverageScore(statsMapper.avgScore(userId));
         stats.setStreakDays(statsMapper.streakDays(userId) != null ? statsMapper.streakDays(userId) : 0);
         stats.setTotalConversations((int) statsMapper.countConversations(userId));
         vo.setStats(stats);
+        vo.setRadar(buildRadar(userId));
 
         // 全量知识点 + 用户进度
         List<KnowledgePoint> all = kpMapper.selectList(new LambdaQueryWrapper<KnowledgePoint>()
@@ -110,7 +120,7 @@ public class LearningService {
             kpVO.setId(kp.getId());
             kpVO.setName(kp.getName());
             kpVO.setStatus(status);
-            kpVO.setBestRating(p != null ? p.getBestRating() : null);
+            kpVO.setBestScore(p != null ? p.getBestRating() : null);
             stageVO.getKnowledgePoints().add(kpVO);
 
             if (p != null) {
@@ -136,24 +146,99 @@ public class LearningService {
                 .filter(k -> STATUS_MASTERED.equals(k.getStatus())).count();
     }
 
+    /**
+     * 能力雷达：把最近若干次对话的五要素分数取平均。
+     *
+     * 要素的 key/label 直接从落库的 JSON 里取，不在这里重复声明一份，
+     * 避免与 PromptScorer 的定义分叉。顺序沿用首次出现的顺序（即 PromptScorer 的固有顺序）。
+     */
+    private List<LearningProgressVO.RadarDimension> buildRadar(String userId) {
+        List<String> rawList = statsMapper.recentElementScores(userId, RADAR_SAMPLE_SIZE);
+
+        // key -> [累计分, 出现次数, 标签]
+        Map<String, double[]> acc = new LinkedHashMap<>();
+        Map<String, String> labels = new LinkedHashMap<>();
+
+        for (String raw : rawList) {
+            if (raw == null || raw.isBlank()) {
+                continue;
+            }
+            try {
+                JsonNode arr = objectMapper.readTree(raw);
+                if (!arr.isArray()) {
+                    continue;
+                }
+                for (JsonNode el : arr) {
+                    String key = el.path("key").asText(null);
+                    if (key == null || key.isBlank()) {
+                        continue;
+                    }
+                    acc.computeIfAbsent(key, k -> new double[2]);
+                    acc.get(key)[0] += el.path("score").asDouble(0);
+                    acc.get(key)[1] += 1;
+                    labels.putIfAbsent(key, el.path("label").asText(key));
+                }
+            } catch (Exception e) {
+                log.warn("解析对话五要素分数失败，已跳过: {}", e.getMessage());
+            }
+        }
+
+        List<LearningProgressVO.RadarDimension> radar = new ArrayList<>();
+        acc.forEach((key, pair) -> {
+            LearningProgressVO.RadarDimension dim = new LearningProgressVO.RadarDimension();
+            dim.setKey(key);
+            dim.setLabel(labels.getOrDefault(key, key));
+            // 单要素原始分是 0-20，换算到 0-100 以便与雷达图其它口径统一
+            double avgRaw = pair[1] > 0 ? pair[0] / pair[1] : 0;
+            dim.setScore(Math.round(avgRaw * 5 * 10) / 10.0);
+            radar.add(dim);
+        });
+        return radar;
+    }
+
     // ============ 进度更新（内部方法） ============
 
     /**
-     * 更新知识点状态：评分 ≥ 阈值 → mastered；并尝试解锁下一阶段
+     * 打卡：完成任意一次对话即算当天打卡。
+     *
+     * 昨天打过 → 连续 +1；否则重置为 1。今天已打过则不变。
+     * 用「日期是否相邻」判断而非累加计数，跨天/漏打都不会算错。
      */
     @Transactional
-    public UpdateProgressVO updateProgress(String userId, String topicId, int rating) {
+    public void checkIn(String userId) {
+        LocalDate today = LocalDate.now();
+        LocalDate last = statsMapper.lastCheckinDate(userId);
+        if (today.equals(last)) {
+            return;
+        }
+        Integer current = statsMapper.streakDays(userId);
+        int streak = (last != null && last.plusDays(1).equals(today))
+                ? (current == null ? 1 : current + 1)
+                : 1;
+        statsMapper.updateCheckin(userId, streak, today);
+        log.info("打卡成功 userId={} 连续天数={}", userId, streak);
+    }
+
+    /**
+     * 更新知识点状态：**系统综合评分** ≥ 阈值 → mastered；并尝试解锁下一阶段。
+     *
+     * 注意 score 的口径是 0-100（完整度 70% + 轮数 30%），不再是用户满意度星级。
+     * 阈值也存在 knowledge_points.unlock_threshold 里，同为 0-100。
+     */
+    @Transactional
+    public UpdateProgressVO updateProgress(String userId, String topicId, int score) {
         KnowledgePoint kp = kpMapper.selectById(topicId);
         if (kp == null) {
             throw new BizException(404, "知识点不存在");
         }
         UserKnowledgeProgress prev = findProgress(userId, topicId);
 
-        String status = rating >= kp.getUnlockThreshold()
+        String status = score >= kp.getUnlockThreshold()
                 || (prev != null && STATUS_MASTERED.equals(prev.getStatus()))
                 ? STATUS_MASTERED : STATUS_LEARNING;
+        // 实体字段仍叫 bestRating（映射列 best_rating），但存的已是 0-100 的综合评分
         float best = prev != null && prev.getBestRating() != null ? prev.getBestRating() : 0f;
-        best = Math.max(best, rating);
+        best = Math.max(best, score);
 
         UserKnowledgeProgress p = prev != null ? prev : new UserKnowledgeProgress();
         p.setUserId(userId);
@@ -180,7 +265,7 @@ public class LearningService {
 
         UpdateProgressVO vo = new UpdateProgressVO();
         vo.setStatus(status);
-        vo.setBestRating(best);
+        vo.setBestScore(best);
         vo.setStageUnlocked(stageUnlocked);
         return vo;
     }

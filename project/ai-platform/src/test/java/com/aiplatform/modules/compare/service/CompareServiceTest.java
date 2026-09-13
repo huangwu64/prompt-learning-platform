@@ -50,7 +50,7 @@ class CompareServiceTest {
         sc.setComparedScore(88);
         sc.setImprovement(53);
         ai.setScoreComparison(sc);
-        when(aiGateway.chatJson(any(), anyList(), eq(AiCompare.class), any())).thenReturn(ai);
+        when(aiGateway.chatJson(any(), any(), anyList(), eq(AiCompare.class), any())).thenReturn(ai);
 
         CompareReq req = new CompareReq();
         req.setOriginalPrompt("帮我写个邮件");

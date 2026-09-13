@@ -23,11 +23,18 @@ public final class LearningConfig {
             "advanced", "精通",
             "master", "大师");
 
+    /**
+     * 各阶段的掌握阈值，口径为**系统综合评分 0-100**。
+     *
+     * 原先这里是 1-5 星口径（3.5 / 3.5 / 4.0 / 4.5），因为当时掌握度由用户的
+     * 满意度星级决定。改造后学习分改为系统按「完整度 + 轮数」计算的综合评分，
+     * 阈值同步 ×20 换算（见 V8 迁移）。
+     */
     public static final Map<String, Float> STAGE_THRESHOLD = Map.of(
-            "beginner", 3.5f,
-            "intermediate", 3.5f,
-            "advanced", 4.0f,
-            "master", 4.5f);
+            "beginner", 70f,
+            "intermediate", 70f,
+            "advanced", 80f,
+            "master", 90f);
 
     /** 知识点清单：阶段内知识点全掌握 + 平均分达标 → 解锁下一阶段 */
     public static List<KnowledgePoint> knowledgePoints() {

@@ -1,6 +1,7 @@
 package com.aiplatform.modules.compare.service;
 
 import com.aiplatform.ai.AiGateway;
+import com.aiplatform.ai.AiScope;
 import com.aiplatform.ai.ChatMessage;
 import com.aiplatform.common.BizException;
 import com.aiplatform.common.PageQuery;
@@ -35,7 +36,7 @@ public class CompareService {
     private final ObjectMapper objectMapper;
 
     public CompareVO create(String userId, CompareReq req) {
-        AiCompare ai = aiGateway.chatJson(userId,
+        AiCompare ai = aiGateway.chatJson(userId, AiScope.TOOLS,
                 List.of(ChatMessage.system(ComparePrompts.system()),
                         ChatMessage.user(ComparePrompts.buildUserMessage(
                                 req.getOriginalPrompt(), req.getComparedPrompt()))),

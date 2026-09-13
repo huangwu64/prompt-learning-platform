@@ -2,12 +2,14 @@ package com.aiplatform.config;
 
 import com.aiplatform.common.Result;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -26,6 +28,7 @@ import java.util.List;
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -39,13 +42,23 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // ASYNC 派发是 SseEmitter 完成/超时时容器发起的内部回调，不是新的客户端请求；
+                        // ERROR 派发是错误页渲染。两者都必须放行 —— 否则助手流式结束时会走一遍
+                        // AuthorizationFilter，而 JwtAuthenticationFilter 默认跳过异步派发、
+                        // SecurityContext 已为空，会被判 403，客户端一直挂到超时。
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
                         // 免鉴权白名单
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/health", "/api/share/*").permitAll()
+                        // 已审核通过的头像需公开可读（作品分享页/宣传页要展示）
+                        .requestMatchers(HttpMethod.GET, "/uploads/avatars/**").permitAll()
                         // API 文档（dev）
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        // 监控（生产由 Nginx IP 白名单保护）
-                        .requestMatchers("/actuator/**").permitAll()
+                        // 管理后台：路由级鉴权（Service 层另有 requireAdmin 防御性校验）
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // 监控：仅存活/信息探针公开，其余指标限管理员（prometheus 端点已从 exposure 移除）
+                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> {

@@ -19,10 +19,21 @@ public final class SocraticPrompts {
                 """;
     }
 
-    /** 回合判断提示：AI 返回 JSON */
+    /**
+     * 回合判断提示：**教学规则 + JSON 输出契约**，两者缺一不可。
+     *
+     * ⚠️ 这里踩过一个隐蔽的坑：建对话 / 回复追问原先只传 {@link #system()}（纯角色描述，
+     * 通篇没有一句要求输出 JSON），模型自然回了自然语言，AiJsonParser 解析失败，
+     * 表现为「创建对话」直接 500。而本方法当时定义了却**从未被引用**。
+     *
+     * 另外，开启服务端 response_format=json_object 要求提示词里出现 "json" 字样，
+     * 所以下面这句输出格式约束不只是给模型看的，也是给接口用的。
+     */
     public static String turnSystem() {
-        return """
-                根据用户的初始提示词与对话历史，判断下一步动作。必须严格返回如下 JSON（不要输出任何其他内容）：
+        return system() + """
+
+                输出格式（必须严格遵守）：
+                只输出一个 JSON 对象，不要任何解释、前后缀，也不要 Markdown 代码围栏：
                 {"action": "ask" 或 "complete", "question": "追问的问题（action=ask 时必填，不超过 80 字）", "confidence": 0到100的整数}
                 判断规则：
                 - 若提示词仍缺失关键要素且轮次未满 5 轮：action 为 "ask"，question 针对当前最缺失的一个要素提问

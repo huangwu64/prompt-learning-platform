@@ -55,7 +55,7 @@ class AuthServiceTest {
     void register_success() {
         when(userMapper.selectCount(any())).thenReturn(0L);
         when(passwordEncoder.encode(any())).thenReturn("hash");
-        when(jwtUtil.generate(any())).thenReturn("token");
+        when(jwtUtil.generate(any(), any())).thenReturn("token");
 
         LoginVO vo = authService.register(registerReq());
 
@@ -80,7 +80,7 @@ class AuthServiceTest {
         user.setPasswordHash("hash");
         when(userMapper.selectOne(any())).thenReturn(user);
         when(passwordEncoder.matches(any(), any())).thenReturn(true);
-        when(jwtUtil.generate(any())).thenReturn("token");
+        when(jwtUtil.generate(any(), any())).thenReturn("token");
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         LoginReq req = new LoginReq();
@@ -89,6 +89,42 @@ class AuthServiceTest {
         LoginVO vo = authService.login(req, "127.0.0.1");
 
         assertEquals("token", vo.getToken());
+    }
+
+    @Test
+    void login_disabledUser_throws403() {
+        User user = new User();
+        user.setId("user_1");
+        user.setPasswordHash("hash");
+        user.setStatus("disabled");
+        when(userMapper.selectOne(any())).thenReturn(user);
+        when(passwordEncoder.matches(any(), any())).thenReturn(true);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+
+        LoginReq req = new LoginReq();
+        req.setEmail("test@example.com");
+        req.setPassword("123456");
+        BizException ex = assertThrows(BizException.class, () -> authService.login(req, "127.0.0.1"));
+
+        assertEquals(403, ex.getStatus());
+    }
+
+    @Test
+    void login_deletedUser_throws400WithoutRevealingReason() {
+        User user = new User();
+        user.setId("user_1");
+        user.setPasswordHash("hash");
+        user.setStatus("deleted");
+        when(userMapper.selectOne(any())).thenReturn(user);
+        when(passwordEncoder.matches(any(), any())).thenReturn(true);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+
+        LoginReq req = new LoginReq();
+        req.setEmail("test@example.com");
+        req.setPassword("123456");
+        BizException ex = assertThrows(BizException.class, () -> authService.login(req, "127.0.0.1"));
+
+        assertEquals(400, ex.getStatus());
     }
 
     @Test

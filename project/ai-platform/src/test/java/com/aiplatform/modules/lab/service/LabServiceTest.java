@@ -2,7 +2,8 @@ package com.aiplatform.modules.lab.service;
 
 import com.aiplatform.ai.AiGateway;
 import com.aiplatform.ai.AiResponse;
-import com.aiplatform.config.AiProperties;
+import com.aiplatform.config.AiConfigHolder;
+import com.aiplatform.config.AiRuntimeConfig;
 import com.aiplatform.modules.lab.dto.LabTestReq;
 import com.aiplatform.modules.lab.vo.LabTestVO;
 import org.junit.jupiter.api.Test;
@@ -25,17 +26,16 @@ class LabServiceTest {
     @Mock
     private AiGateway aiGateway;
     @Mock
-    private AiProperties aiProperties;
+    private AiConfigHolder aiConfigHolder;
     @InjectMocks
     private LabService labService;
 
     @Test
     void test_success() {
         AiResponse resp = new AiResponse("测试结果", 10, 20, 30);
-        when(aiGateway.chatTextDetail(any(), anyList(), any(), any())).thenReturn(resp);
-        AiProperties.Deepseek deepseek = new AiProperties.Deepseek();
-        deepseek.setModel("deepseek-chat");
-        when(aiProperties.getDeepseek()).thenReturn(deepseek);
+        when(aiGateway.chatTextDetail(any(), any(), anyList(), any(), any())).thenReturn(resp);
+        when(aiConfigHolder.get()).thenReturn(new AiRuntimeConfig(
+                "https://api.deepseek.com", "sk-test", "deepseek-chat", 30, 120, 2048, 50, 100, true));
 
         LabTestReq req = new LabTestReq();
         req.setPrompt("请解释什么是提示词工程");

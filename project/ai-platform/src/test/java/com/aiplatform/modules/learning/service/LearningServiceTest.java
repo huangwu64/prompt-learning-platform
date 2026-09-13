@@ -50,23 +50,24 @@ class LearningServiceTest {
 
     @Test
     void updateProgress_aboveThreshold_mastered() {
-        when(kpMapper.selectById("topic_1")).thenReturn(kp(3.5f));
+        // 阈值与评分同为 0-100 口径（入门阶段阈值 70）
+        when(kpMapper.selectById("topic_1")).thenReturn(kp(70f));
         when(progressMapper.selectOne(any())).thenReturn(null);
         when(kpMapper.selectList(any())).thenReturn(List.of());
 
-        UpdateProgressVO vo = learningService.updateProgress("user_1", "topic_1", 4);
+        UpdateProgressVO vo = learningService.updateProgress("user_1", "topic_1", 82);
 
         assertEquals("mastered", vo.getStatus());
-        assertEquals(4.0f, vo.getBestRating());
+        assertEquals(82f, vo.getBestScore());
         verify(progressMapper).insert(any(UserKnowledgeProgress.class));
     }
 
     @Test
     void updateProgress_belowThreshold_learning() {
-        when(kpMapper.selectById("topic_1")).thenReturn(kp(3.5f));
+        when(kpMapper.selectById("topic_1")).thenReturn(kp(70f));
         when(progressMapper.selectOne(any())).thenReturn(null);
 
-        UpdateProgressVO vo = learningService.updateProgress("user_1", "topic_1", 3);
+        UpdateProgressVO vo = learningService.updateProgress("user_1", "topic_1", 55);
 
         assertEquals("learning", vo.getStatus());
     }
@@ -76,7 +77,7 @@ class LearningServiceTest {
         when(kpMapper.selectById("topic_1")).thenReturn(null);
 
         BizException ex = assertThrows(BizException.class,
-                () -> learningService.updateProgress("user_1", "topic_1", 4));
+                () -> learningService.updateProgress("user_1", "topic_1", 82));
 
         assertEquals(404, ex.getStatus());
     }

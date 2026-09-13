@@ -1,6 +1,7 @@
 package com.aiplatform.modules.works.service;
 
 import com.aiplatform.ai.AiGateway;
+import com.aiplatform.ai.AiScope;
 import com.aiplatform.ai.ChatMessage;
 import com.aiplatform.common.BizException;
 import com.aiplatform.modules.badges.service.BadgeService;
@@ -47,7 +48,7 @@ public class WorksService {
         validateFormData(req.getWorkType(), req.getFormData());
 
         long start = System.currentTimeMillis();
-        String content = aiGateway.chatText(userId,
+        String content = aiGateway.chatText(userId, AiScope.TOOLS,
                 List.of(ChatMessage.system(WorkPrompts.system(req.getWorkType())),
                         ChatMessage.user(WorkPrompts.buildRequest(req.getFormData()))),
                 2048);

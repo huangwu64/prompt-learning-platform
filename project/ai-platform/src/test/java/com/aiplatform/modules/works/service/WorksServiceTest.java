@@ -55,7 +55,7 @@ class WorksServiceTest {
 
     @Test
     void create_email_success() {
-        when(aiGateway.chatText(any(), anyList(), any())).thenReturn("尊敬的张总：...");
+        when(aiGateway.chatText(any(), any(), anyList(), any())).thenReturn("尊敬的张总：...");
         when(workMapper.selectCount(any())).thenReturn(0L);
 
         WorkVO vo = worksService.create("user_1", emailReq());

@@ -26,6 +26,12 @@ public class UserKnowledgeProgress {
     /** locked / learning / mastered */
     private String status;
 
+    /**
+     * 该知识点的历史最好成绩。
+     *
+     * ⚠️ 字段名与列名仍叫 best_rating（历史遗留），但**口径已是系统综合评分 0-100**，
+     * 不再是 1-5 星。对外 VO 已改名为 bestScore 以免误读；列名未做 DDL 重命名。
+     */
     private Float bestRating;
 
     private LocalDateTime updatedAt;

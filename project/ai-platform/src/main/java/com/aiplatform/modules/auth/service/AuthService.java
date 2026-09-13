@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 /**
  * 认证业务：注册、登录、JWT 签发、失败锁定
@@ -49,6 +50,8 @@ public class AuthService {
         user.setEmail(req.getEmail());
         user.setUsername(req.getUsername());
         user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
+        user.setRole("USER");
+        user.setStatus("active");
         user.setStreakDays(0);
         userMapper.insert(user);
         log.info("用户注册成功 userId={} email={}", user.getId(), user.getEmail());
@@ -72,7 +75,19 @@ public class AuthService {
             throw new BizException(400, "邮箱或密码错误");
         }
 
+        // 密码正确后再校验账号状态。放在密码校验之后，避免把"账号存在且密码正确"
+        // 这一信息泄露给仅猜中密码的一方之外的人；同时也不计入失败次数。
+        if ("disabled".equals(user.getStatus())) {
+            throw new BizException(403, "账号已被禁用，请联系管理员");
+        }
+        if ("deleted".equals(user.getStatus())) {
+            // 软删账号不暴露真实原因，与密码错误同口径
+            throw new BizException(400, "邮箱或密码错误");
+        }
+
         redisTemplate.delete(lockKey);
+        user.setLastLoginAt(LocalDateTime.now());
+        userMapper.updateById(user);
         log.info("用户登录成功 userId={}", user.getId());
         return buildLoginVO(user);
     }
@@ -80,7 +95,8 @@ public class AuthService {
     private LoginVO buildLoginVO(User user) {
         LoginVO vo = new LoginVO();
         vo.setUser(UserVO.from(user));
-        vo.setToken(jwtUtil.generate(user.getId()));
+        // 带上 role claim，前端据此决定是否显示管理后台入口
+        vo.setToken(jwtUtil.generate(user.getId(), user.getRole()));
         return vo;
     }
 }

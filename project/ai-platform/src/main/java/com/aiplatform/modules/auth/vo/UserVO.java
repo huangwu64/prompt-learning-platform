@@ -14,6 +14,7 @@ public class UserVO {
     private String id;
     private String email;
     private String username;
+    private String role;
     private String avatar;
     private Integer streakDays;
     private LocalDateTime createdAt;
@@ -23,6 +24,7 @@ public class UserVO {
         vo.setId(user.getId());
         vo.setEmail(user.getEmail());
         vo.setUsername(user.getUsername());
+        vo.setRole(user.getRole());
         vo.setAvatar(user.getAvatar());
         vo.setStreakDays(user.getStreakDays());
         vo.setCreatedAt(user.getCreatedAt());

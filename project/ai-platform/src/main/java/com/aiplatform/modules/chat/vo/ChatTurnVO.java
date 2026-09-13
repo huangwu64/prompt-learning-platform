@@ -9,6 +9,13 @@ import lombok.Data;
 @Data
 public class ChatTurnVO {
 
+    /**
+     * 本轮 AI 的追问。
+     *
+     * ⚠️ **触发「完成」的那一轮不出这个字段（为 null）** —— 此时结果在
+     * improvedPrompt / comparisonResult 里。前端必须判空，
+     * 曾因直接 append 导致消息列表出现 null、渲染时整页白屏。
+     */
     private MessageVO message;
     /** active / completed */
     private String conversationStatus;
