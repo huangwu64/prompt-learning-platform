@@ -9,12 +9,21 @@ interface ChatState {
   sending: boolean;
   error: string | null;
   rated: boolean;
+  /**
+   * 是否正在回看历史记录（只读模式）。
+   *
+   * 为 true 时对话页隐藏输入区、只展示记录与评分，并提供「退出查看」——
+   * 历史记录按设计只是回看，不该能继续输入。
+   */
+  viewingHistory: boolean;
   createChat: (prompt: string, topicId?: string) => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
   completeChat: () => Promise<void>;
   rateChat: (rating: number) => Promise<void>;
   /** 载入一条历史对话的完整内容（气泡 + 结果） GET /api/chat/:id */
   loadHistory: (id: string) => Promise<void>;
+  /** 载入一条**进行中**的对话继续追问。与 loadHistory 的唯一区别是可输入 */
+  resumeChat: (id: string) => Promise<void>;
   reset: () => void;
 }
 
@@ -67,6 +76,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   sending: false,
   error: null,
   rated: false,
+  viewingHistory: false,
 
   /** 创建对话 POST /api/chat（demo 走本地模拟） */
   createChat: async (prompt, topicId) => {
@@ -83,6 +93,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         improvedPrompt: null,
         comparisonResult: null,
         rating: null,
+        score: null,
         status: "active",
         currentRound: 1,
         maxRounds: 5,
@@ -101,9 +112,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const data = await chatService.create({ originalPrompt: prompt, topicId });
       set({
         conversation: data.conversation,
-        messages: [data.message],
+        // 后端创建接口只返回 AI 的那句追问，用户自己提的需求要本地补上，
+        // 否则对话页会少了「我提的需求」这条气泡，看起来像凭空开始提问
+        messages: [localMessage(prompt, "user"), data.message],
         sending: false,
         rated: false,
+        viewingHistory: false,
       });
     } catch (err) {
       set({ sending: false, error: err instanceof Error ? err.message : "创建对话失败" });
@@ -154,8 +168,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       const data = await chatService.sendMessage(conversation.id, { content });
 
-      // 追加 AI 回复
-      let nextMessages = [...get().messages, data.message];
+      // 追加 AI 回复。注意：**触发「完成」的那一轮 message 为 null**（结果在
+      // improvedPrompt / comparisonResult 里）—— 直接 append 会把 null 塞进列表，
+      // 渲染时 msg.id 抛错，整页白屏。这正是「对话最后一步白屏」的原因。
+      const nextMessages = data.message
+        ? [...get().messages, data.message]
+        : get().messages;
 
       // AI 判定信息充足 → 对话自动完成，更新 conversation
       let nextConversation = { ...conversation };
@@ -261,7 +279,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  /** 载入历史对话：整段回看（气泡流 + 完成后的结果面板） */
+  /** 载入历史对话：整段回看（气泡流 + 完成后的结果面板），**只读** */
   loadHistory: async (id) => {
     set({ sending: false, error: null });
     try {
@@ -272,6 +290,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         rated: data.conversation.rating != null,
         sending: false,
         error: null,
+        viewingHistory: true,
       });
     } catch (err) {
       set({ sending: false, error: err instanceof Error ? err.message : "载入历史对话失败" });
@@ -279,5 +298,31 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  reset: () => set({ conversation: null, messages: [], sending: false, error: null, rated: false }),
+  /** 继续一条进行中的对话：与 loadHistory 的区别在于 viewingHistory=false，即允许输入 */
+  resumeChat: async (id) => {
+    set({ sending: false, error: null });
+    try {
+      const data = await chatService.getDetail(id);
+      set({
+        conversation: data.conversation,
+        messages: data.messages,
+        rated: data.conversation.rating != null,
+        sending: false,
+        error: null,
+        viewingHistory: false,
+      });
+    } catch (err) {
+      set({ sending: false, error: err instanceof Error ? err.message : "载入对话失败" });
+      throw err;
+    }
+  },
+
+  reset: () => set({
+    conversation: null,
+    messages: [],
+    sending: false,
+    error: null,
+    rated: false,
+    viewingHistory: false,
+  }),
 }));

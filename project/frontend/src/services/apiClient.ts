@@ -31,6 +31,14 @@ apiClient.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // FormData 上传必须让**浏览器自己**生成 Content-Type（要带 boundary）。
+    // 实例上默认的 application/json 会被原样发出去，后端因 consumes 不匹配直接拒收；
+    // 手动写 "multipart/form-data" 同样不行 —— 那样缺 boundary，后端解析失败。
+    // 唯一正确做法就是把这个头删掉，交给浏览器。
+    if (config.data instanceof FormData) {
+      config.headers.delete("Content-Type");
+    }
     return config;
   },
   (error) => Promise.reject(error)

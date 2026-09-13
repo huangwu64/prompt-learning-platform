@@ -10,6 +10,12 @@ import { SparkLogo } from "./SparkLogo";
 interface Props {
   message: Message;
   index?: number;
+  /**
+   * 流式生成中：改用纯文本渲染 + 闪烁光标。
+   * 必须这样做 —— 每来一个 token 就重新解析一次 markdown 是 O(n²)，
+   * 长回复会明显卡顿。等 done 之后再切回 markdown 渲染。
+   */
+  streaming?: boolean;
 }
 
 /** HH:mm 时间戳 */
@@ -28,7 +34,7 @@ function timeOf(iso: string): string {
  * - 用户：淡蓝紫渐变底 + 右下对话尾巴
  * 逐条滑入，hover 微发光。
  */
-export const MessageBubble = memo(function MessageBubble({ message, index = 0 }: Props) {
+export const MessageBubble = memo(function MessageBubble({ message, index = 0, streaming = false }: Props) {
   const isUser = message.role === "user";
 
   return (
@@ -70,6 +76,14 @@ export const MessageBubble = memo(function MessageBubble({ message, index = 0 }:
           >
             {isUser ? (
               message.content
+            ) : streaming ? (
+              <span className="whitespace-pre-wrap">
+                {message.content}
+                <span
+                  aria-hidden
+                  className="inline-block w-[2px] h-[1em] align-[-2px] ml-0.5 bg-blue-600 animate-pulse"
+                />
+              </span>
             ) : (
               <div>
                 <ReactMarkdown

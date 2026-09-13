@@ -171,7 +171,7 @@ function StatFigure({
 /**
  * 知识点 pill（圆角胶囊，非卡片）
  */
-function KnowledgePill({ name, status, bestRating }: { name: string; status: string; bestRating: number | null }) {
+function KnowledgePill({ name, status, bestScore }: { name: string; status: string; bestScore: number | null }) {
   const setActiveSection = useUiStore((s) => s.setActiveSection);
 
   return (
@@ -196,8 +196,8 @@ function KnowledgePill({ name, status, bestRating }: { name: string; status: str
         <Lock className="w-3 h-3" />
       )}
       {name}
-      {status === "mastered" && bestRating !== null && (
-        <span className="text-[10px] opacity-70 tabular-nums">· {bestRating}★</span>
+      {status === "mastered" && bestScore !== null && (
+        <span className="text-[10px] opacity-70 tabular-nums">· {Math.round(bestScore)} 分</span>
       )}
       {status !== "locked" && <span className="text-[10px] opacity-60">{kpStatusLabel[status]}</span>}
     </button>
@@ -276,7 +276,7 @@ function TimelineStage({
               >
                 <div className={`flex flex-wrap gap-2 pt-1 ${!contentOnRight ? "md:justify-end" : ""}`}>
                   {stage.knowledgePoints.map((kp) => (
-                    <KnowledgePill key={kp.id} name={kp.name} status={kp.status} bestRating={kp.bestRating} />
+                    <KnowledgePill key={kp.id} name={kp.name} status={kp.status} bestScore={kp.bestScore} />
                   ))}
                 </div>
               </motion.div>
@@ -473,7 +473,7 @@ export default function LearningMapPage() {
 
       {/* 编辑式统计数字（无卡片） */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 wb-reveal">
-        <StatFigure icon={Star} label="平均评分" value={progress.stats.averageRating} suffix="/5" decimals={1} color="#4B3FE3" />
+        <StatFigure icon={Star} label="平均学习分" value={progress.stats.averageScore ?? 0} suffix=" / 100" decimals={1} color="#4B3FE3" />
         <StatFigure icon={Flame} label="连续打卡" value={progress.stats.streakDays} suffix="天" color="#7A6FF0" />
         <StatFigure icon={CheckCircle2} label="已掌握知识点" value={progress.stats.masteredCount} suffix="个" color="#00B983" />
       </div>

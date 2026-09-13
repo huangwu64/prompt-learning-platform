@@ -1,12 +1,20 @@
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AdminLayout } from "@/components/layout/AdminLayout";
 import { AuthGuard } from "@/components/common/AuthGuard";
+import { AdminGuard } from "@/components/common/AdminGuard";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 // Pages
 import LoginPage from "@/pages/auth/LoginPage";
 import WorkspacePage from "@/pages/workspace/WorkspacePage";
 import LandingPage from "@/pages/landing/LandingPage";
+import AdminAvatarsPage from "@/pages/admin/AdminAvatarsPage";
+import AdminUsersPage from "@/pages/admin/AdminUsersPage";
+import AdminConfigPage from "@/pages/admin/AdminConfigPage";
+import AdminMonitorPage from "@/pages/admin/AdminMonitorPage";
+import AdminLogsPage from "@/pages/admin/AdminLogsPage";
 
 /** 根地址 / 入口：一律先进宣传页（登录与否都由宣传页 → 登录 → 工作台走流程） */
 function RootRedirect() {
@@ -21,21 +29,19 @@ function RootRedirect() {
  * - 兜底（未知路径）→ 走根地址重定向
  */
 /**
- * Spark 工作台 — 方向契约（Linear 设计语言，established-world 精修）
+ * 路由表（各页独立地址）：
+ * - /         根地址 → 一律重定向到 /landing
+ * - /landing  宣传页（公开）
+ * - /login    登录/注册（公开）
+ * - /app      主工作台（受保护，未登录跳 /login）
  *
- * THESIS: 工作台采用 Linear 级设计——近黑底 #08090A、青绿→蓝紫→紫三色渐变
- *   （#00B983→#4B3FE3→#7A6FF0）、渐变发光边框、卡片顶部内光晕、玻璃质感、
- *   点阵网格背景、精修排版；拒绝 AI 生成俗套（米白衬线、浅灰卡、大数字+细线）。
- * OWN-WORLD: Linear 色板 + wb-card 玻璃表面（顶部内光晕 + 深投影）+ wb-border-grad
- *   渐变发光边框 + wb-reveal 滚动渐入 + 三色漂移光斑 + 视差粒子场。
- * STORY: 用户进入深色科技工作台：发光导航指示条引导模块，卡片 hover 泛出蓝紫光，
- *   进度横幅青绿→蓝紫渐变，数据精修排版。
- * FIRST VIEWPORT: 左侧 240px 深色侧栏（渐变刊徽 + 发光导航 + 今日任务 + 用户卡）+
- *   顶部 56px 毛玻璃工具条 + 内容区点阵网格与三色光晕；首屏学习地图时间线。
- * FORM: Linear 设计语言在工作台的全表面实现。
- * FINISH: unreviewed and undocumented is unfinished; this build ends with the
- *   finish review, the verdict, DESIGN.md, and every shipping raster carrying
- *   its provenance.
+ * 视觉体系：**浅色靛蓝** —— 底 #F6F7F9 / 白卡 #FFFFFF / 主文字 #171717 /
+ * 品牌靛蓝 #4B3FE3（hover #3D31D6、亮阶 #6B5BFF）/ 语义绿 #00B983；
+ * 标题用衬线 Noto Serif SC，正文 Outfit。与宣传页共用同一套设计语言，
+ * 宣传页是视觉权威，详见 DESIGN.md。
+ *
+ * 背景层 = .wb-canvas 点阵网格 + 三色漂移光斑（靛蓝/亮靛/语义绿）+ 视差粒子场，
+ * 全部尊重 prefers-reduced-motion。
  */
 export default function App() {
   // 磁性按钮：鼠标靠近时轻微吸附（宣传页同款动效）
@@ -62,6 +68,8 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      {/* 顶层兜底：任何未被子边界捕获的渲染异常，都不该让用户面对一片空白 */}
+      <ErrorBoundary>
       <Routes>
         {/* 根地址：一律进宣传页 /landing（经登录后再进工作台） */}
         <Route path="/" element={<RootRedirect />} />
@@ -83,9 +91,27 @@ export default function App() {
           <Route path="/app" element={<WorkspacePage />} />
         </Route>
 
+        {/* 管理后台（仅 ADMIN；非管理员看到 403 面板而非静默跳转） */}
+        <Route
+          path="/admin"
+          element={
+            <AdminGuard>
+              <AdminLayout />
+            </AdminGuard>
+          }
+        >
+          <Route index element={<Navigate to="/admin/monitor" replace />} />
+          <Route path="monitor" element={<AdminMonitorPage />} />
+          <Route path="avatars" element={<AdminAvatarsPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="config" element={<AdminConfigPage />} />
+          <Route path="logs" element={<AdminLogsPage />} />
+        </Route>
+
         {/* 兜底：未知路径走根地址重定向 */}
         <Route path="*" element={<RootRedirect />} />
       </Routes>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

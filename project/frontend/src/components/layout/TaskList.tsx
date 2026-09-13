@@ -1,4 +1,4 @@
-import { Check, Circle, Flame, MessageSquare, FileText, Trophy } from "lucide-react";
+import { Check, Circle, Flame, MessageSquare, FileText } from "lucide-react";
 
 /**
  * 今日任务列表（左侧栏下半部分）— 浅色工作台风格
@@ -12,11 +12,11 @@ interface TaskItem {
   icon: typeof Flame;
 }
 
+// 「提示词挑战赛」随该模块一起下线（暂不开放），恢复模块时把对应任务加回来
 const tasks: TaskItem[] = [
   { id: "streak", label: "连续打卡", desc: "今日已完成 1 次练习", done: true, icon: Flame },
   { id: "chat", label: "苏格拉底对话", desc: "完成 1 次对话练习", done: false, icon: MessageSquare },
   { id: "work", label: "作品工厂", desc: "创作 1 个作品", done: false, icon: FileText },
-  { id: "challenge", label: "提示词挑战赛", desc: "提交 1 次挑战", done: false, icon: Trophy },
 ];
 
 export function TaskList() {

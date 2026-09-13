@@ -1,7 +1,7 @@
 import { Map, MessageSquare, FileText, Trophy, Radar } from "lucide-react";
 import { useUiStore } from "@/store/uiStore";
 import { useAuthStore } from "@/store/authStore";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/common/UserAvatar";
 
 /** 顶栏模块映射（图标 + 名称） */
 const sectionMeta: Record<string, { label: string; icon: typeof Map }> = {
@@ -42,11 +42,12 @@ export function TopBar() {
         })()}
       </div>
 
-      <Avatar className="w-7 h-7 shrink-0 border border-app-border">
-        <AvatarFallback className="bg-blue-50 text-blue-600 text-xs font-medium">
-          {user?.username?.[0]?.toUpperCase() ?? "U"}
-        </AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        src={user?.avatar}
+        name={user?.username}
+        className="w-7 h-7"
+        fallbackClassName="text-xs"
+      />
     </header>
   );
 }

@@ -145,10 +145,16 @@ export function evaluateLive(
   const coverage: Record<ElementKey, number> = { role: 0, task: 0, context: 0, format: 0, constraint: 0 };
   const detail: Record<ElementKey, number> = { role: 0, task: 0, context: 0, format: 0, constraint: 0 };
 
-  // 基线：原始提示词里已写明的要素
+  // 基线：原始提示词里已写明的要素。
+  // 同时记「具体度」—— 只记覆盖度的话每个要素封顶 10/20 分，
+  // 会导致「一上来就把五要素写全」反而比被追问补齐的人得分低，与产品目标相反。
+  // 注：此处与后端 PromptScorer.java 的基线处理必须保持一致。
   for (const el of PROMPT_ELEMENTS) {
     const c = coverageIn(conversation.originalPrompt, el);
-    if (c > 0) coverage[el.key] = c;
+    if (c > 0) {
+      coverage[el.key] = c;
+      detail[el.key] = detailOf(conversation.originalPrompt);
+    }
   }
 
   let pending: ElementKey | null = null; // 最近一次 AI 追问点名要补的要素

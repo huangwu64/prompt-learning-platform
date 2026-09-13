@@ -26,35 +26,38 @@ import { SectionTitle } from "@/components/ui/SectionTitle";
 import { learningService } from "@/services/learningService";
 import { badgeService } from "@/services/badgeService";
 import { useAuthStore } from "@/store/authStore";
+import { AccountSettings } from "./components/AccountSettings";
 import {
   mockProfile,
   mockSkillRadar,
   mockProfileStats,
   mockBadges,
 } from "@/lib/mockData";
-import type { Badge, Profile } from "@/types";
+import type { Badge, Profile, RadarDimension } from "@/types";
 
-const radarDimensions = [
-  { key: "accuracy", label: "精确度" },
-  { key: "structure", label: "结构化" },
-  { key: "creativity", label: "创造力" },
-  { key: "constraint", label: "约束性" },
-  { key: "iteration", label: "迭代力" },
-] as const;
+/**
+ * 五要素的改进建议。
+ *
+ * 维度来自后端返回的 radar 数据（key/label 由 PromptScorer 定义），
+ * 这里不再另立一套维度名，避免与评分口径分叉。
+ */
+const ELEMENT_SUGGESTION: Record<string, string> = {
+  role: "「角色设定」偏弱：试试在开头写明「你是一位……」，让 AI 先站对位置。",
+  task: "「任务描述」偏弱：把「要做什么、达成什么结果」说清楚，输出会准很多。",
+  context: "「上下文」偏弱：补上背景、场景、面向谁，回答会贴合得多。",
+  format: "「输出格式」偏弱：指明分点 / 表格 / 字数等要求，结果更好用。",
+  constraint: "「约束条件」偏弱：加上「不要……」「必须……」这类限制，能挡掉不想要的输出。",
+};
 
-function buildSuggestion(radar: Record<string, number>): { dimension: string; text: string } {
-  const suggestions: Record<string, string> = {
-    accuracy: "精确度偏低，建议多练习明确的任务描述，让 AI 更准确地理解你的需求。",
-    structure: "结构化偏低，建议在提示词中补充角色设定、任务、格式等结构要素。",
-    creativity: "创造力偏低，建议尝试不同的表达方式和策略，比如对比法、类比法。",
-    constraint: "约束性偏低，建议多练习输出格式、字数、语气等约束条件的设定。",
-    iteration: "迭代力偏低，建议多进行多轮对话练习，通过反馈不断优化提示词。",
+function buildSuggestion(radar: RadarDimension[]): { dimension: string; text: string } | null {
+  if (radar.length === 0) {
+    return null;
+  }
+  const lowest = radar.reduce((min, dim) => (dim.score < min.score ? dim : min));
+  return {
+    dimension: lowest.label,
+    text: ELEMENT_SUGGESTION[lowest.key] ?? "继续多练习，各要素都会稳步提升。",
   };
-
-  const lowest = radarDimensions.reduce((min, dim) =>
-    (radar[dim.key] ?? 0) < (radar[min.key] ?? 0) ? dim : min
-  );
-  return { dimension: lowest.label, text: suggestions[lowest.key] };
 }
 
 function StatItem({ icon: Icon, label, value, decimals = 0, suffix = "", color }: { icon: typeof Star; label: string; value: number; decimals?: number; suffix?: string; color: string }) {
@@ -77,16 +80,18 @@ export default function ProfilePage() {
   const isDemo = token === "demo-token";
 
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [radar, setRadar] = useState<Record<string, number> | null>(null);
+  const [radar, setRadar] = useState<RadarDimension[]>([]);
   const [stats, setStats] = useState({
     totalConversations: 0,
-    averageRating: 0,
+    averageScore: 0,
     streakDays: 0,
     masteredCount: 0,
   });
   const [badges, setBadges] = useState<Badge[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  /** 递增即触发整页重新拉取（账号设置里改完资料后调用） */
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -111,12 +116,18 @@ export default function ProfilePage() {
         ]);
         if (!cancelled) {
           setProfile(p);
+          // 头像审核通过后，authStore 里存的那份会过期（登录时快照的），
+          // 同步一次让侧栏 / 顶栏的头像跟着更新，不必等重新登录
+          const current = useAuthStore.getState().user;
+          if (current && current.avatar !== p.avatar) {
+            useAuthStore.setState({ user: { ...current, avatar: p.avatar } });
+          }
           setBadges(b.badges);
-          // 五维能力雷达数据后端接口待开发（对话+挑战赛加权计算），暂无真实数据源
-          setRadar({ accuracy: 0, structure: 0, creativity: 0, constraint: 0, iteration: 0 });
+          // 能力雷达与学习地图同源：都来自对话完成时算出的五要素分数
+          setRadar(lp.radar ?? []);
           setStats({
             totalConversations: lp.stats.totalConversations,
-            averageRating: lp.stats.averageRating,
+            averageScore: lp.stats.averageScore ?? 0,
             streakDays: lp.stats.streakDays,
             masteredCount: lp.stats.masteredCount,
           });
@@ -132,7 +143,7 @@ export default function ProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [isDemo]);
+  }, [isDemo, refreshKey]);
 
   if (loading) {
     return (
@@ -150,11 +161,12 @@ export default function ProfilePage() {
     );
   }
 
-  const radarData = radarDimensions.map((dim) => ({
+  // 维度直接用后端给的 key/label，不再本地维护一份
+  const radarData = radar.map((dim) => ({
     dimension: dim.label,
-    score: radar?.[dim.key] ?? 0,
+    score: dim.score,
   }));
-  const suggestion = radar ? buildSuggestion(radar) : null;
+  const suggestion = buildSuggestion(radar);
 
   const daysRegistered = Math.max(
     1,
@@ -223,7 +235,7 @@ export default function ProfilePage() {
             <SectionTitle icon={BarChart3} className="mb-3">学习统计</SectionTitle>
             <div className="flex flex-col gap-2">
               <StatItem icon={MessageSquare} label="总对话数" value={stats.totalConversations} color="#9FA3D6" />
-              <StatItem icon={Star} label="平均评分" value={stats.averageRating} decimals={1} suffix=" / 5" color="#4B3FE3" />
+              <StatItem icon={Star} label="平均学习分" value={stats.averageScore} decimals={1} suffix=" / 100" color="#4B3FE3" />
               <StatItem icon={Flame} label="连续打卡" value={stats.streakDays} suffix=" 天" color="#7A6FF0" />
               <StatItem icon={CheckCircle2} label="已掌握知识点" value={stats.masteredCount} suffix=" 个" color="#00B983" />
             </div>
@@ -281,6 +293,9 @@ export default function ProfilePage() {
           ))}
         </div>
       </div>
+
+      {/* 账号设置：头像审核 / 用户名 / 密码 */}
+      <AccountSettings profile={profile} onRefresh={() => setRefreshKey((k) => k + 1)} />
     </div>
   );
 }

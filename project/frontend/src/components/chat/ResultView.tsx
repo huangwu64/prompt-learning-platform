@@ -10,14 +10,42 @@ interface Props {
 }
 
 /**
- * 对话完成后的结果面板 — 中性灰体系
+ * 对话完成后的结果面板。
+ *
+ * 注意两种「分」的区别 ——
+ * - **系统综合评分**（score）：由算法按「五要素完整度 70% + 轮数效率 30%」算出，
+ *   决定学习地图掌握度与能力雷达，是本页的主角。
+ * - **用户星级**（rating）：用户主观的体验反馈，仅作产品改进参考，不影响学习进度。
  */
 export function ResultView({ conversation, rated, submitting, onRate }: Props) {
-  const { improvedPrompt, comparisonResult } = conversation;
+  const { improvedPrompt, comparisonResult, score } = conversation;
   const improvements = comparisonResult?.improvements ?? [];
 
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col gap-4 px-6 pb-4">
+      {/* 系统综合评分 */}
+      <div className="wb-card rounded-2xl flex items-center gap-5">
+        <div className="shrink-0 flex flex-col items-center min-w-[76px]">
+          <span className="font-display text-[40px] leading-none font-medium text-app-fg tabular-nums">
+            {score ?? "—"}
+          </span>
+          <span className="text-[11px] text-app-t4 mt-1.5 whitespace-nowrap">综合评分 / 100</span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-app-fg mb-1">本轮学习分</p>
+          <p className="text-[12px] text-app-t3 leading-relaxed">
+            系统按「五要素完整度 70% + 轮数效率 30%」综合计算，本次共追问{" "}
+            <span className="tabular-nums">
+              {Math.min(conversation.currentRound, conversation.maxRounds)}/{conversation.maxRounds}
+            </span>{" "}
+            轮。
+          </p>
+          <p className="text-[11px] text-app-t4 mt-1 leading-relaxed">
+            该分数决定学习地图的知识点掌握度，并用于生成能力雷达。
+          </p>
+        </div>
+      </div>
+
       {/* 优化后的提示词 */}
       <div className="wb-card rounded-2xl">
         <div className="flex items-center gap-2 mb-3">
@@ -49,11 +77,12 @@ export function ResultView({ conversation, rated, submitting, onRate }: Props) {
         )}
       </div>
 
-      {/* 评分 */}
+      {/* 体验反馈：与学习分无关 */}
       <div className="wb-card rounded-2xl flex flex-col items-center py-5">
-        <h3 className="text-sm font-semibold text-app-fg mb-3">评价本次学习体验</h3>
+        <h3 className="text-sm font-semibold text-app-fg mb-1">这次体验怎么样？</h3>
+        <p className="text-[11px] text-app-t4 mb-3">仅作产品体验反馈，不影响你的学习分</p>
         {rated ? (
-          <p className="text-sm text-app-t2">已评分，感谢反馈！评分已同步到学习地图</p>
+          <p className="text-sm text-app-t2">已收到，感谢反馈！</p>
         ) : (
           <RatingStars onRate={onRate} disabled={submitting} submitting={submitting} />
         )}

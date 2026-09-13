@@ -1,6 +1,7 @@
 import type {
   LearningProgress,
   Badge,
+  RadarDimension,
   Work,
   WorkType,
 } from "@/types";
@@ -15,23 +16,31 @@ import type {
 // ===== 学习地图 =====
 export const mockLearningProgress: LearningProgress = {
   stats: {
-    averageRating: 4.2,
+    averageScore: 84,
     streakDays: 7,
     masteredCount: 12,
     totalConversations: 45,
   },
   currentStage: "intermediate",
+  // 能力雷达：提示词五要素的近期均值（0-100），与学习地图同源
+  radar: [
+    { key: "role", label: "角色设定", score: 88 },
+    { key: "task", label: "任务描述", score: 92 },
+    { key: "context", label: "上下文", score: 76 },
+    { key: "format", label: "输出格式", score: 81 },
+    { key: "constraint", label: "约束条件", score: 64 },
+  ],
   stages: [
     {
       id: "beginner",
       name: "入门",
       status: "completed",
       knowledgePoints: [
-        { id: "topic_role", name: "角色设定", status: "mastered", bestRating: 5 },
-        { id: "topic_task", name: "任务描述", status: "mastered", bestRating: 4 },
-        { id: "topic_context", name: "上下文", status: "mastered", bestRating: 4 },
-        { id: "topic_format", name: "输出格式", status: "mastered", bestRating: 3 },
-        { id: "topic_constraint", name: "约束条件", status: "mastered", bestRating: 4 },
+        { id: "topic_role", name: "角色设定", status: "mastered", bestScore: 96 },
+        { id: "topic_task", name: "任务描述", status: "mastered", bestScore: 84 },
+        { id: "topic_context", name: "上下文", status: "mastered", bestScore: 84 },
+        { id: "topic_format", name: "输出格式", status: "mastered", bestScore: 68 },
+        { id: "topic_constraint", name: "约束条件", status: "mastered", bestScore: 84 },
       ],
     },
     {
@@ -39,9 +48,9 @@ export const mockLearningProgress: LearningProgress = {
       name: "进阶",
       status: "in_progress",
       knowledgePoints: [
-        { id: "topic_cot", name: "思维链", status: "learning", bestRating: 3 },
-        { id: "topic_multi_turn", name: "多轮对话", status: "locked", bestRating: null },
-        { id: "topic_reflection", name: "自我反思", status: "locked", bestRating: null },
+        { id: "topic_cot", name: "思维链", status: "learning", bestScore: 68 },
+        { id: "topic_multi_turn", name: "多轮对话", status: "locked", bestScore: null },
+        { id: "topic_reflection", name: "自我反思", status: "locked", bestScore: null },
       ],
     },
     {
@@ -49,9 +58,9 @@ export const mockLearningProgress: LearningProgress = {
       name: "精通",
       status: "locked",
       knowledgePoints: [
-        { id: "topic_code", name: "代码提示词", status: "locked", bestRating: null },
-        { id: "topic_writing", name: "写作提示词", status: "locked", bestRating: null },
-        { id: "topic_analysis", name: "分析提示词", status: "locked", bestRating: null },
+        { id: "topic_code", name: "代码提示词", status: "locked", bestScore: null },
+        { id: "topic_writing", name: "写作提示词", status: "locked", bestScore: null },
+        { id: "topic_analysis", name: "分析提示词", status: "locked", bestScore: null },
       ],
     },
     {
@@ -59,8 +68,8 @@ export const mockLearningProgress: LearningProgress = {
       name: "大师",
       status: "locked",
       knowledgePoints: [
-        { id: "topic_workflow", name: "工作流构建", status: "locked", bestRating: null },
-        { id: "topic_optimize", name: "模型性能调优", status: "locked", bestRating: null },
+        { id: "topic_workflow", name: "工作流构建", status: "locked", bestScore: null },
+        { id: "topic_optimize", name: "模型性能调优", status: "locked", bestScore: null },
       ],
     },
   ],
@@ -196,17 +205,18 @@ export const mockLeaderboard = {
 };
 
 // ===== 能力雷达 =====
-export const mockSkillRadar = {
-  accuracy: 85,
-  structure: 78,
-  creativity: 80,
-  constraint: 68,
-  iteration: 72,
-};
+/** 演示用的能力雷达数据：提示词五要素口径，与真实接口同构（0-100） */
+export const mockSkillRadar: RadarDimension[] = [
+  { key: "role", label: "角色设定", score: 85 },
+  { key: "task", label: "任务描述", score: 78 },
+  { key: "context", label: "上下文", score: 80 },
+  { key: "format", label: "输出格式", score: 68 },
+  { key: "constraint", label: "约束条件", score: 72 },
+];
 
 export const mockProfileStats = {
   totalConversations: 45,
-  averageRating: 4.2,
+  averageScore: 84,
   streakDays: 7,
   masteredCount: 12,
 };
@@ -215,8 +225,12 @@ export const mockProfile = {
   id: "user_demo",
   username: "体验用户",
   email: "demo@example.com",
+  role: "USER" as const,
   avatar: null,
+  avatarStatus: "none" as const,
+  avatarRejectReason: null,
   streakDays: 7,
+  lastLoginAt: null,
   createdAt: "2026-07-01T08:00:00.000Z",
 };
 

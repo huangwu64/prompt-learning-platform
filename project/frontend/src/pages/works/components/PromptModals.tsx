@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-import { motion } from "framer-motion";
-import { X, Check, Copy, Heart, Eye, Send, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Check, Copy, Heart, Eye, Send, Loader2 } from "lucide-react";
+import { Modal as ModalShell } from "@/components/ui/modal";
 import {
   promptCategories,
   type PromptCategory,
@@ -16,69 +15,9 @@ import {
 } from "./promptMeta";
 
 /* ============================================================
- * 通用：遮罩 + 面板骨架（Esc / 点遮罩关闭；入场动效）
+ * 通用弹窗骨架已提取到 components/ui/modal.tsx（ModalShell 现为其别名），
+ * 供管理后台等其它模块复用。
  * ============================================================ */
-interface ShellProps {
-  title: string;
-  subtitle?: string;
-  onClose: () => void;
-  children: React.ReactNode;
-  maxWidth?: string;
-}
-function ModalShell({ title, subtitle, onClose, children, maxWidth = "max-w-2xl" }: ShellProps) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [onClose]);
-
-  return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center p-4 sm:p-6">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
-        onClick={onClose}
-      />
-      <motion.div
-        initial={{ opacity: 0, y: 16, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-        role="dialog"
-        aria-modal="true"
-        className={`relative w-full ${maxWidth} bg-app-surface rounded-2xl border border-app-border shadow-[0_24px_80px_-16px_rgba(20,20,60,0.35)] flex flex-col max-h-[90vh]`}
-      >
-        {/* 头部 */}
-        <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-3 border-b border-app-border shrink-0">
-          <div className="min-w-0">
-            <h2 className="font-display text-lg font-medium tracking-tight text-app-fg truncate">
-              {title}
-            </h2>
-            {subtitle && <p className="text-xs text-app-t4 mt-0.5 truncate">{subtitle}</p>}
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="关闭"
-            className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-app-t4 hover:text-app-fg hover:bg-app-chrome transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* 内容 */}
-        <div className="px-6 py-4 overflow-y-auto min-h-0 flex-1">{children}</div>
-      </motion.div>
-    </div>,
-    document.body
-  );
-}
 
 /* ============================================================
  * 详情弹窗

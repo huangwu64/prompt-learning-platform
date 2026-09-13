@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useAuthStore } from "@/store/authStore";
 import { authService } from "@/services/authService";
 import { ParticleField } from "@/components/common/ParticleField";
@@ -119,6 +120,8 @@ export default function LoginPage() {
       id: "user_demo",
       email: "demo@example.com",
       username: "体验用户",
+      role: "USER",
+      avatar: null,
       streakDays: 3,
       createdAt: "2026-01-01T00:00:00.000Z",
     });
@@ -289,9 +292,8 @@ export default function LoginPage() {
 
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="password" className="text-xs text-app-t3">密码</label>
-                  <Input
+                  <PasswordInput
                     id="password"
-                    type="password"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     placeholder="请输入密码（至少 6 位）"
@@ -337,10 +339,11 @@ export default function LoginPage() {
                   以游客身份体验（免登录预览）
                 </button>
 
-                <div className="flex items-center gap-2 rounded-xl border border-app-border bg-app-chrome px-3 py-2.5 text-[11px] text-app-t3">
-                  <span className="font-medium text-app-t2">测试账号</span>
-                  test@example.com / 123456
-                </div>
+                {/* 原先这里挂着一行「测试账号 test@example.com / 123456」。
+                    那个账号在本地库与云端库都**不存在**，照它输必然登录失败；
+                    而且它和上面的「游客体验」按钮功能重叠。
+                    想「不注册就试试」用游客按钮即可；真实账号请走注册。
+                    另外在公开的登录页上印可用凭据本身就是安全隐患。 */}
 
                 <p className="text-center text-[10px] text-app-t4">免费注册 · 无需绑定支付</p>
               </form>

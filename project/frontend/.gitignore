@@ -34,3 +34,12 @@ pnpm-debug.log*
 
 # Vite build output (dist-build)
 dist-build/
+
+# TypeScript 增量构建缓存
+*.tsbuildinfo
+
+# vite.config.ts 被 tsc 编译出的产物。
+# 必须忽略：Vite 解析配置时 .js 优先于 .ts，这两个文件会**遮蔽** vite.config.ts，
+# 导致改了 .ts 却不生效（曾踩过：/uploads 代理配了没反应）。
+vite.config.js
+vite.config.d.ts

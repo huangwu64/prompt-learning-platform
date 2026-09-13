@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Sparkles, Send, Square, History, Gauge } from "lucide-react";
+import { MessageSquare, Sparkles, Send, Square, History, Gauge, ArrowLeft, Clock, AlertCircle } from "lucide-react";
 import { useChatStore } from "@/store/chatStore";
+import { chatService } from "@/services/chatService";
 import { MessageBubble } from "@/components/chat/MessageBubble";
 import { SparkLogo } from "@/components/chat/SparkLogo";
 import { ResultView } from "@/components/chat/ResultView";
@@ -35,18 +36,40 @@ export default function ChatPage() {
     sending,
     error,
     rated,
+    viewingHistory,
     createChat,
     sendMessage,
     completeChat,
     rateChat,
     loadHistory,
+    resumeChat,
     reset,
   } = useChatStore();
 
   const [input, setInput] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [showProgress, setShowProgress] = useState(true);
+  const [activeChat, setActiveChat] = useState<ConversationHistoryItem | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 欢迎屏上查一下有没有未完成的对话。
+  // 「同一用户只能有一个 active 对话」是后端规则，不提前告知的话，
+  // 用户点「开始对话」只会被拒，而这里原本连错误都不显示 —— 表现为「点了没反应」。
+  useEffect(() => {
+    if (conversation) return;
+    let cancelled = false;
+    chatService
+      .getHistory({ page: 1, pageSize: 1, status: "active" })
+      .then((data) => {
+        if (!cancelled) setActiveChat(data.items[0] ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setActiveChat(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [conversation]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -104,8 +127,45 @@ export default function ChatPage() {
 
   return (
     <div className="h-full flex flex-col wb-bg min-w-0">
-      {/* ===== 对话头部 ===== */}
-      {conversation && (
+      {/* ===== 历史回看头部（只读）===== */}
+      {conversation && viewingHistory && (
+        <header className="shrink-0 px-6 md:px-8 py-3.5 border-b border-app-border flex items-center gap-4 bg-app-surface/60 backdrop-blur-sm">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="w-7 h-7 shrink-0 rounded-lg bg-app-chrome border border-app-border text-app-t3 flex items-center justify-center">
+              <History className="w-3.5 h-3.5" />
+            </span>
+            <div className="min-w-0">
+              <h1 className="text-sm font-medium text-app-fg truncate">
+                {conversation.originalPrompt}
+              </h1>
+              <p className="text-[11px] text-app-t4">
+                历史记录 · 只读回看（查看记录与评分，不支持继续输入）
+              </p>
+            </div>
+          </div>
+
+          <div className="ml-auto flex items-center gap-2 shrink-0">
+            <span className={`wb-badge ${isCompleted ? "wb-badge-blue" : ""}`}>
+              {isCompleted ? "已完成" : "进行中"}
+            </span>
+            <button
+              onClick={() => setHistoryOpen(true)}
+              title="回到历史记录列表"
+              className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-app-t3 hover:text-blue-600 hover:bg-blue-50 transition duration-150 ease-in-out"
+            >
+              <History className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">历史记录</span>
+            </button>
+            <button onClick={reset} className="wb-btn h-8 px-3 text-xs whitespace-nowrap">
+              <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+              退出查看
+            </button>
+          </div>
+        </header>
+      )}
+
+      {/* ===== 对话头部（进行中 / 刚完成的对话）===== */}
+      {conversation && !viewingHistory && (
         <header className="shrink-0 px-6 md:px-8 py-3.5 border-b border-app-border flex items-center gap-4 bg-app-surface/60 backdrop-blur-sm">
           <div className="flex items-center gap-2.5 min-w-0">
             <span className="w-7 h-7 shrink-0 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
@@ -183,6 +243,27 @@ export default function ChatPage() {
             </div>
 
             <div className="w-full max-w-3xl flex flex-col gap-3.5">
+              {/* 有未完成的对话时明确告知并提供继续入口 */}
+              {activeChat && (
+                <div className="flex items-center gap-3 rounded-2xl border border-blue-200 bg-blue-50/70 px-4 py-3">
+                  <span className="w-8 h-8 shrink-0 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                    <Clock className="w-4 h-4" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-medium text-app-fg">你有一个进行中的对话</p>
+                    <p className="text-[11px] text-app-t3 truncate">
+                      {activeChat.originalPrompt} · 第 {Math.min(activeChat.currentRound, 5)}/5 轮
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => void resumeChat(activeChat.id)}
+                    className="wb-btn wb-btn-primary h-8 px-3 text-xs shrink-0 whitespace-nowrap"
+                  >
+                    继续这一条
+                  </button>
+                </div>
+              )}
+
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -202,12 +283,21 @@ export default function ChatPage() {
                   {sending ? "正在思考" : "开始对话"}
                 </button>
               </div>
+
+              {/* 欢迎屏也要显示错误：否则创建失败时界面上什么都没发生 */}
+              {error && (
+                <p className="text-xs text-red-600 text-center flex items-center justify-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  {error}
+                </p>
+              )}
             </div>
           </div>
         ) : (
           /* 对话中：消息流 */
           <div className="py-8 flex flex-col gap-6 max-w-4xl mx-auto px-5 md:px-6">
-            {messages.map((msg, i) => (
+            {/* filter(Boolean) 是防御性的：任何来源的空消息都不该让整页崩掉 */}
+            {messages.filter(Boolean).map((msg, i) => (
               <MessageBubble key={msg.id} message={msg} index={i} />
             ))}
 
@@ -239,7 +329,8 @@ export default function ChatPage() {
         )}
         </div>
 
-        {conversation && showProgress && (
+        {/* 实时评分面板只在「进行中的对话」有意义；历史回看是只读的，不显示 */}
+        {conversation && showProgress && !viewingHistory && (
           <LiveProgressPanel
             conversation={conversation}
             messages={messages}
@@ -248,8 +339,9 @@ export default function ChatPage() {
         )}
       </div>
 
-      {/* ===== 底部输入区 ===== */}
-      {conversation && (
+      {/* ===== 底部输入区 =====
+          历史回看时**整块隐藏** —— 按设计历史记录只展示记录与评分，不接受输入 */}
+      {conversation && !viewingHistory && (
         <footer className="shrink-0 px-6 md:px-8 py-4 border-t border-app-border bg-app-surface/60 backdrop-blur-sm">
           {isCompleted ? (
             <div className="max-w-4xl mx-auto flex flex-col items-center gap-3">

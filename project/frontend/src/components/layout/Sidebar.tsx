@@ -2,16 +2,17 @@ import {
   Map,
   MessageSquare,
   FileText,
-  Trophy,
   Radar,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
+  ShieldCheck,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { useUiStore, type SectionId } from "@/store/uiStore";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import { TaskList } from "./TaskList";
 
 /**
@@ -25,7 +26,8 @@ const navGroups: { title: string; items: NavItem[] }[] = [
     items: [
       { id: "learning", label: "学习地图", icon: Map },
       { id: "chat", label: "苏格拉底对话", icon: MessageSquare },
-      { id: "challenge", label: "每日挑战赛", icon: Trophy },
+      // 「每日挑战赛」按需求暂时下线 —— 页面组件（ChallengePage）、uiStore 的
+      // section 类型与 WorkspacePage 的分发都保留着，恢复时把这一项加回来即可。
     ],
   },
   {
@@ -128,16 +130,24 @@ export function Sidebar() {
       {/* 底部：用户卡 + 退出 + 版本号 */}
       <div className="px-2 pb-2 pt-1 mt-auto border-t border-app-border">
         <div className="flex items-center gap-2.5 rounded-xl border border-app-border bg-app-surface px-2.5 py-2 mb-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
-          <Avatar className="w-8 h-8 shrink-0">
-            <AvatarFallback className="bg-blue-50 text-blue-600 font-medium">
-              {user?.username?.[0]?.toUpperCase() ?? "U"}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar src={user?.avatar} name={user?.username} className="w-8 h-8" />
           <div className="min-w-0 flex-1">
             <p className="text-[13px] text-app-fg truncate">{user?.username ?? "学习者"}</p>
             <p className="text-[11px] text-app-t4 truncate">连续 {user?.streakDays ?? 0} 天</p>
           </div>
         </div>
+
+        {/* 管理员专属入口。普通用户看不到；后端 /api/admin/** 另有鉴权兜底，
+            前端隐藏只是不暴露入口，不是安全边界 */}
+        {user?.role === "ADMIN" && (
+          <Link
+            to="/admin"
+            className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] text-app-t2 hover:bg-app-chrome hover:text-app-fg transition"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            管理后台
+          </Link>
+        )}
 
         <button
           onClick={logout}
