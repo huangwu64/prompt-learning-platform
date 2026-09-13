@@ -48,6 +48,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:?请设置 JWT_SECRET}
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:?请设置 DEEPSEEK_API_KEY}
       DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      # 敏感配置（如后台存的 apiKey）的加密密钥。不设则回落 jwt.secret 派生，
+      # 但轮换 JWT 密钥会导致已存密文解不开，生产建议单独设置
+      AI_CONFIG_SECRET: ${AI_CONFIG_SECRET:-}
+      # 用户上传文件的落盘目录，必须与下面的 volume 一致
+      UPLOAD_DIR: /data/uploads
+    volumes:
+      # 不挂 volume 的话，重建容器会丢掉所有已审核通过的头像
+      - upload-data:/data/uploads
     expose:
       - "8080"
 
@@ -68,3 +76,5 @@ services:
 volumes:
   mysql-data:
   redis-data:
+  # 用户上传的文件（头像）。由 backend 写入、nginx 反代读取
+  upload-data:
